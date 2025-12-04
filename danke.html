@@ -14,7 +14,7 @@
         
         #message { font-style: italic; color: #ddd; margin-top: 20px; font-size: 1.1em; line-height: 1.5; }
         
-        .btn { display: block; background: #25D366; color: white; padding: 15px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 30px; }
+        .footer-note { font-size: 0.9em; color: #777; margin-top: 40px; }
     </style>
 </head>
 <body>
@@ -33,23 +33,21 @@
 
         <p id="message">Berechne Feedback...</p>
 
-        <a href="https://wa.me/" class="btn">Zurück zu WhatsApp</a>
+        <p class="footer-note">Du kannst dieses Fenster jetzt schließen.</p>
     </div>
 
     <script>
-        // 1. Daten aus der URL holen (Die n8n uns geschickt hat)
+        // 1. Daten aus der URL holen
         const urlParams = new URLSearchParams(window.location.search);
-        const scoreRaw = urlParams.get('score') || "0% (0/0)"; // Fallback falls leer
+        const scoreRaw = urlParams.get('score') || "0% (0/0)"; 
         const timeRaw = urlParams.get('time') || "--";
 
         // 2. Daten anzeigen
         document.getElementById('scoreDisplay').innerText = scoreRaw;
         document.getElementById('timeDisplay').innerText = timeRaw;
 
-        // 3. Prozentzahl extrahieren (Wir nehmen die Zahl vor dem %)
-        const percent = parseInt(scoreRaw.split('%')[0]);
-
-        // 4. Motivierender Spruch basierend auf Leistung
+        // 3. Spruch auswählen
+        const percent = parseInt(scoreRaw.split('%')[0]) || 0;
         let msg = "";
         let title = "";
         
@@ -64,7 +62,7 @@
             msg = "Du hast die Grundlagen drauf. Ein bisschen Feinschliff und du kommst ganz nach oben.";
         } else {
             title = "Kopf hoch! 💪";
-            msg = "Aller Anfang ist schwer. Lass uns die Fehler gemeinsam anschauen, dann sitzt das morgen!";
+            msg = "Aller Anfang ist schwer. Deine Ergebnisse sind gespeichert – wir schauen uns die Fehler an!";
         }
 
         document.getElementById('title').innerText = title;
