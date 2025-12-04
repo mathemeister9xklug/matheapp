@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gesendet!</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 40px 20px; }
-        .card { background: #333; padding: 30px; border-radius: 20px; border: 2px solid #2ecc71; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); }
-        h1 { color: #2ecc71; font-size: 2.5em; margin: 0; text-transform: uppercase; }
-        p { font-size: 1.1em; color: #ccc; margin-top: 10px; }
-        .btn { display: block; background: #25D366; color: white; padding: 15px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 30px; font-size: 1.2em; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; min-height: 80vh; }
+        .card { background: #333; padding: 40px; border-radius: 20px; border: 2px solid #2ecc71; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); max-width: 500px; margin: 0 auto; }
+        h1 { color: #2ecc71; font-size: 3em; margin: 0; text-transform: uppercase; }
+        p { font-size: 1.2em; color: #ccc; margin-top: 20px; line-height: 1.5; }
+        .checkmark { font-size: 4em; margin-bottom: 20px; display: block; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>Stark! 🚀</h1>
-        <p>Deine Daten sind im System.</p>
-        <p>Ich berechne jetzt deine Punkte für das Schul-Ranking.</p>
+        <span class="checkmark">✅</span>
+        <h1>Erledigt!</h1>
+        <p>Deine Ergebnisse sind sicher in der Datenbank angekommen.</p>
+        <p>Du hast deinen Teil für heute erledigt. Dein Score wird demnächst im Schul-Ranking erscheinen.</p>
         <br>
-        <p><em>Check gleich WhatsApp für dein Feedback!</em></p>
-        <a href="https://wa.me/" class="btn">Zurück zu WhatsApp</a>
+        <p style="font-size: 0.9em; color: #777;">Du kannst dieses Fenster jetzt schließen.</p>
     </div>
 </body>
 </html>
