@@ -3,23 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gesendet!</title>
+    <title>Ergebnis</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; min-height: 80vh; }
         .card { background: #333; padding: 40px; border-radius: 20px; border: 2px solid #2ecc71; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); max-width: 500px; margin: 0 auto; }
-        h1 { color: #2ecc71; font-size: 3em; margin: 0; text-transform: uppercase; }
-        p { font-size: 1.2em; color: #ccc; margin-top: 20px; line-height: 1.5; }
-        .checkmark { font-size: 4em; margin-bottom: 20px; display: block; }
+        h1 { color: #2ecc71; font-size: 2.5em; margin: 0; text-transform: uppercase; margin-bottom: 20px;}
+        
+        .stat-box { background: #444; padding: 15px; border-radius: 10px; margin: 20px 0; font-size: 1.2em; }
+        .highlight { color: #2ecc71; font-weight: bold; font-size: 1.3em; }
+        
+        #message { font-style: italic; color: #ddd; margin-top: 20px; font-size: 1.1em; line-height: 1.5; }
+        
+        .btn { display: block; background: #25D366; color: white; padding: 15px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 30px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <span class="checkmark">✅</span>
-        <h1>Erledigt!</h1>
-        <p>Deine Ergebnisse sind sicher in der Datenbank angekommen.</p>
-        <p>Du hast deinen Teil für heute erledigt. Dein Score wird demnächst im Schul-Ranking erscheinen.</p>
-        <br>
-        <p style="font-size: 0.9em; color: #777;">Du kannst dieses Fenster jetzt schließen.</p>
+        <h1 id="title">Ausgewertet! 🚀</h1>
+        
+        <div class="stat-box">
+            Dein Ergebnis:<br>
+            <span id="scoreDisplay" class="highlight">Lade Daten...</span>
+        </div>
+        
+        <div class="stat-box">
+            Deine Zeit:<br>
+            <span id="timeDisplay" class="highlight">...</span>
+        </div>
+
+        <p id="message">Berechne Feedback...</p>
+
+        <a href="https://wa.me/" class="btn">Zurück zu WhatsApp</a>
     </div>
+
+    <script>
+        // 1. Daten aus der URL holen (Die n8n uns geschickt hat)
+        const urlParams = new URLSearchParams(window.location.search);
+        const scoreRaw = urlParams.get('score') || "0% (0/0)"; // Fallback falls leer
+        const timeRaw = urlParams.get('time') || "--";
+
+        // 2. Daten anzeigen
+        document.getElementById('scoreDisplay').innerText = scoreRaw;
+        document.getElementById('timeDisplay').innerText = timeRaw;
+
+        // 3. Prozentzahl extrahieren (Wir nehmen die Zahl vor dem %)
+        const percent = parseInt(scoreRaw.split('%')[0]);
+
+        // 4. Motivierender Spruch basierend auf Leistung
+        let msg = "";
+        let title = "";
+        
+        if (percent >= 90) {
+            title = "Maschine! 🏆";
+            msg = "Unglaublich! Du hast fast alles zerlegt. Dein Lehrer wird Augen machen.";
+        } else if (percent >= 70) {
+            title = "Stark! 🔥";
+            msg = "Das ist eine solide Leistung. Du bist definitiv bereit für die Liga.";
+        } else if (percent >= 50) {
+            title = "Gut! 👍";
+            msg = "Du hast die Grundlagen drauf. Ein bisschen Feinschliff und du kommst ganz nach oben.";
+        } else {
+            title = "Kopf hoch! 💪";
+            msg = "Aller Anfang ist schwer. Lass uns die Fehler gemeinsam anschauen, dann sitzt das morgen!";
+        }
+
+        document.getElementById('title').innerText = title;
+        document.getElementById('message').innerText = msg;
+    </script>
 </body>
 </html>
