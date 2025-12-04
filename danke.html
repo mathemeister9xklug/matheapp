@@ -33,36 +33,38 @@
 
         <p id="message">Berechne Feedback...</p>
 
-        <p class="footer-note">Du kannst dieses Fenster jetzt schließen.</p>
+        <p class="footer-note">Daten sind gespeichert. Du kannst das Fenster schließen.</p>
     </div>
 
     <script>
-        // 1. Daten aus der URL holen
+        // 1. Daten aus der URL holen (Die n8n uns geschickt hat)
         const urlParams = new URLSearchParams(window.location.search);
-        const scoreRaw = urlParams.get('score') || "0% (0/0)"; 
+        
+        // Wir suchen nach ?score=... und ?time=...
+        const scoreRaw = urlParams.get('score') || "unbekannt"; 
         const timeRaw = urlParams.get('time') || "--";
 
         // 2. Daten anzeigen
         document.getElementById('scoreDisplay').innerText = scoreRaw;
         document.getElementById('timeDisplay').innerText = timeRaw;
 
-        // 3. Spruch auswählen
+        // 3. Spruch auswählen (Logik)
         const percent = parseInt(scoreRaw.split('%')[0]) || 0;
         let msg = "";
         let title = "";
         
         if (percent >= 90) {
             title = "Maschine! 🏆";
-            msg = "Unglaublich! Du hast fast alles zerlegt. Dein Lehrer wird Augen machen.";
+            msg = "Unglaublich! Du hast fast alles zerlegt.";
         } else if (percent >= 70) {
             title = "Stark! 🔥";
-            msg = "Das ist eine solide Leistung. Du bist definitiv bereit für die Liga.";
+            msg = "Das ist eine solide Leistung. Weiter so!";
         } else if (percent >= 50) {
             title = "Gut! 👍";
-            msg = "Du hast die Grundlagen drauf. Ein bisschen Feinschliff und du kommst ganz nach oben.";
+            msg = "Grundlagen sitzen. Ein bisschen Feinschliff noch.";
         } else {
             title = "Kopf hoch! 💪";
-            msg = "Aller Anfang ist schwer. Deine Ergebnisse sind gespeichert – wir schauen uns die Fehler an!";
+            msg = "Das war noch wackelig. Wir schauen uns die Fehler an!";
         }
 
         document.getElementById('title').innerText = title;
