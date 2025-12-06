@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1a1a1a">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mathe-Liga: Dashboard</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#121212">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <style>
         /* --- DESIGN GRUNDLAGEN --- */
         :root {
@@ -15,62 +16,75 @@
             --card-bg: #1e1e1e;
             --text-main: #ffffff;
             --text-muted: #aaaaaa;
-            --rookie: #27ae60;      /* Grün */
-            --challenger: #2980b9;  /* Blau */
-            --pro: #e74c3c;         /* Rot */
-            --master: #8e44ad;      /* Lila */
+            --accent: #3498db;
+            --success: #27ae60;
+            --warn: #e67e22;
         }
 
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; padding-bottom: 50px; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; padding-bottom: 80px; }
         .container { max-width: 600px; margin: 0 auto; }
 
-        /* HEADER & BEGRÜSSUNG */
+        /* HEADER */
         header { text-align: center; margin-bottom: 30px; }
-        h1 { margin: 0; font-size: 2em; letter-spacing: 1px; text-transform: uppercase; }
-        .subtitle { font-size: 0.9em; color: var(--text-muted); margin-top: 5px; }
+        h1 { margin: 0; font-size: 2em; letter-spacing: 1px; text-transform: uppercase; background: -webkit-linear-gradient(#eee, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .user-card { background: linear-gradient(135deg, #333, #222); padding: 15px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; }
+        .user-card { background: linear-gradient(135deg, #333, #222); padding: 15px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .user-name { font-weight: bold; font-size: 1.1em; color: #fff; }
         .user-status { font-size: 0.8em; background: #444; padding: 4px 8px; border-radius: 4px; color: #ccc; }
 
-        /* LIGA ÜBERSCHRIFTEN */
-        .league-title { margin-top: 40px; margin-bottom: 10px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; display: flex; align-items: center; }
-        .league-title::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; }
-        
-        .l-rookie { color: var(--rookie); } .l-rookie::before { background: var(--rookie); }
-        .l-challenger { color: var(--challenger); } .l-challenger::before { background: var(--challenger); }
-        .l-pro { color: var(--pro); } .l-pro::before { background: var(--pro); }
-        .l-master { color: var(--master); } .l-master::before { background: var(--master); }
+        /* KAMPAGNEN-STRUKTUR */
+        .campaign-header { margin-top: 40px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .campaign-title { font-size: 1.1em; font-weight: bold; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .campaign-progress { font-size: 0.8em; color: var(--text-muted); }
 
-        /* KARTEN DESIGN */
-        .grid { display: grid; gap: 15px; }
+        .path-container { position: relative; padding-left: 20px; border-left: 2px dashed #444; margin-left: 10px; }
         
         .card { 
             background: var(--card-bg); 
-            padding: 20px; 
+            padding: 15px; 
             border-radius: 12px; 
             display: flex; 
             align-items: center; 
             text-decoration: none; 
             color: white; 
+            margin-bottom: 15px;
             position: relative; 
-            overflow: hidden; 
             transition: transform 0.2s;
-            border-left: 4px solid transparent;
+            border: 1px solid #333;
         }
 
-        /* Aktive Karte */
-        .card.active { border-left-color: var(--challenger); box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; }
-        .card.active:hover { transform: scale(1.02); background: #252525; }
-        .card.active .icon { font-size: 1.5em; margin-right: 15px; }
+        /* Verbindungs-Linien Punkte */
+        .card::before {
+            content: '';
+            position: absolute;
+            left: -26px; /* Position auf der gestrichelten Linie */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background: #444;
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+        }
 
-        /* Gesperrte Karte */
-        .card.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.8); }
-        .card.locked .lock-icon { position: absolute; right: 15px; top: 20px; font-size: 1.2em; opacity: 0.5; }
+        /* STATUS STYLES */
+        .card.done { border-left: 4px solid var(--success); }
+        .card.done::before { background: var(--success); }
+        
+        .card.active { border-left: 4px solid var(--accent); background: #252525; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2); }
+        .card.active:hover { transform: scale(1.02); }
+        .card.active::before { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
+        .card.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        
+        .icon { font-size: 1.5em; margin-right: 15px; width: 30px; text-align: center; }
         .card-content { flex: 1; }
-        .card-title { font-weight: bold; font-size: 1.1em; display: block; }
-        .card-meta { font-size: 0.8em; color: var(--text-muted); margin-top: 4px; display: block; }
+        .card-title { font-weight: bold; font-size: 1em; display: block; }
+        .card-meta { font-size: 0.8em; color: var(--text-muted); margin-top: 2px; display: block; }
+        
+        .badge { font-size: 0.7em; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-left: 10px; text-transform: uppercase; }
+        .badge-diag { background: #555; color: #fff; }
+        .badge-game { background: var(--warn); color: #000; }
 
         /* FOOTER */
         .footer { text-align: center; margin-top: 50px; font-size: 0.8em; color: #555; }
@@ -82,139 +96,95 @@
 <div class="container">
     <header>
         <h1>Mathe Liga 🏆</h1>
-        <div class="subtitle">School Championship Season 1</div>
-        
         <div class="user-card" id="userCard" style="display:none;">
             <div>
-                <span style="display:block; font-size:0.8em; color:#888;">Angemeldet als:</span>
+                <span style="display:block; font-size:0.8em; color:#888;">Pilot:</span>
                 <span class="user-name" id="userNameDisplay">Gast</span>
             </div>
-            <span class="user-status">Player</span>
+            <span class="user-status">Rookie</span>
         </div>
     </header>
 
-    <div class="league-title l-rookie">Rookie League (Kl. 5-6)</div>
-    <div class="grid">
-        <div class="card locked">
-            <span class="icon">🔢</span>
-            <div class="card-content">
-                <span class="card-title">Große Zahlen & Kopfrechnen</span>
-                <span class="card-meta">Training • 15 Fragen</span>
-            </div>
-            <span class="lock-icon">🔒</span>
-        </div>
-        <div class="card locked">
-            <span class="icon">📐</span>
-            <div class="card-content">
-                <span class="card-title">Geometrie Basics</span>
-                <span class="card-meta">Umfang, Fläche & Rechtecke</span>
-            </div>
-            <span class="lock-icon">🔒</span>
-        </div>
+    <div class="campaign-header">
+        <span class="campaign-title">🍕 Mission: Brüche</span>
+        <span class="campaign-progress">Level 1-3</span>
     </div>
 
-    <div class="league-title l-challenger">Challenger League (Kl. 7-8)</div>
-    <div class="grid">
+    <div class="path-container">
         
-        <a href="brueche.html" class="card active">
-            <span class="icon">🍕</span> <div class="card-content">
-                <span class="card-title">Brüche, Terme & Dezimal</span>
-                <span class="card-meta">🔥 LIVE • Großes Diagnose-Quiz</span>
+        <a href="brueche.html" class="card done">
+            <span class="icon">🩺</span>
+            <div class="card-content">
+                <span class="card-title">Check-Up</span>
+                <span class="card-meta">Diagnose • 25 Fragen</span>
             </div>
-            <span style="background:var(--challenger); font-size:0.7em; padding:3px 8px; border-radius:10px; font-weight:bold;">OPEN</span>
+            <span class="badge badge-diag">Pflicht</span>
+        </a>
+
+        <a href="speed_kuerzen.html" class="card active">
+            <span class="icon">⚡</span>
+            <div class="card-content">
+                <span class="card-title">Speed-Kürzen</span>
+                <span class="card-meta">Time Attack • 60 Sek</span>
+            </div>
+            <span class="badge badge-game">Game</span>
         </a>
 
         <div class="card locked">
-            <span class="icon">📈</span>
+            <span class="icon">👑</span>
             <div class="card-content">
-                <span class="card-title">Prozent & Zinsen</span>
-                <span class="card-meta">Vorbereitung Klassenarbeit</span>
+                <span class="card-title">Der Nenner-Killer</span>
+                <span class="card-meta">Boss Battle • Schwer</span>
             </div>
             <span class="lock-icon">🔒</span>
         </div>
-        <div class="card locked">
-            <span class="icon">📉</span>
-            <div class="card-content">
-                <span class="card-title">Lineare Funktionen</span>
-                <span class="card-meta">y = mx + b Training</span>
-            </div>
-            <span class="lock-icon">🔒</span>
-        </div>
+
     </div>
 
-    <div class="league-title l-pro">Pro League (Kl. 9-10)</div>
-    <div class="grid">
+    <div class="campaign-header" style="opacity:0.5; margin-top:50px;">
+        <span class="campaign-title">📐 Mission: Geometrie</span>
+        <span class="campaign-progress">Bald verfügbar</span>
+    </div>
+    <div class="path-container" style="opacity:0.5;">
         <div class="card locked">
             <span class="icon">📐</span>
             <div class="card-content">
-                <span class="card-title">Pythagoras & Trigonometrie</span>
-                <span class="card-meta">Sinus, Cosinus & Dreiecke</span>
-            </div>
-            <span class="lock-icon">🔒</span>
-        </div>
-        <div class="card locked">
-            <span class="icon">🚀</span>
-            <div class="card-content">
-                <span class="card-title">Quadratische Funktionen</span>
-                <span class="card-meta">Parabeln & pq-Formel</span>
+                <span class="card-title">Winkel-Jagd</span>
+                <span class="card-meta">Training</span>
             </div>
             <span class="lock-icon">🔒</span>
         </div>
     </div>
 
-    <div class="league-title l-master">Master League (Abi)</div>
-    <div class="grid">
-        <div class="card locked">
-            <span class="icon">🧠</span>
-            <div class="card-content">
-                <span class="card-title">Analysis & Kurvendiskussion</span>
-                <span class="card-meta">Ableitungen & Extrempunkte</span>
-            </div>
-            <span class="lock-icon">🔒</span>
-        </div>
-    </div>
 
     <div class="footer">
-        Mathe-Liga App v1.0<br>
+        Mathe-Liga App v1.2<br>
         <span class="reset-link" onclick="logout()">Nicht du? Ausloggen</span>
     </div>
 
 </div>
 
 <script>
-    // 1. Schauen: Steht eine ID im Link? (z.B. ?id=Jonas)
-    const urlParams = new URLSearchParams(window.location.search);
-    let currentUser = urlParams.get('id');
-
-    // 2. Wenn ja: Sofort im Handy speichern!
-    if (currentUser) {
-        localStorage.setItem('matheLigaUser', currentUser);
-    } 
-    // 3. Wenn nein: Schauen, ob wir ihn schon im Speicher haben
-    else {
-        currentUser = localStorage.getItem('matheLigaUser');
-    }
-
-    // 4. Anzeige aktualisieren
-    if (currentUser) {
-        // Wenn wir den Namen kennen:
-        document.getElementById('userNameDisplay').innerText = currentUser; // Oben im Header
-        document.getElementById('greeting').innerHTML = "Hey <strong>" + currentUser + "</strong>! 👋"; // In der Box
-        document.getElementById('userCard').style.display = 'flex'; // Header-Karte zeigen
+    // USER LOGIK (Wie gehabt)
+    const user = localStorage.getItem('matheLigaUser');
+    
+    if (user) {
+        document.getElementById('userNameDisplay').innerText = user;
+        document.getElementById('userCard').style.display = 'flex';
         
-        // Links anpassen: Wir hängen die ID an den Link zum Quiz an, zur Sicherheit
-        // (Falls der Speicher im Quiz versagt, hilft der Link)
-        const quizLink = document.querySelector('a[href="brueche.html"]');
-        if(quizLink) {
-            quizLink.href = "brueche.html?id=" + currentUser;
-        }
+        // Links personalisieren (Gedächtnis-Hilfe)
+        const links = document.querySelectorAll('a[href]');
+        links.forEach(link => {
+            if(link.href.includes('.html')) {
+                link.href = link.getAttribute('href') + "?id=" + user;
+            }
+        });
     }
 
-    // Logout Funktion
     function logout() {
         if(confirm("Ausloggen?")) {
             localStorage.removeItem('matheLigaUser');
-            window.location.href = window.location.pathname; // Seite neu laden ohne ID
+            location.reload();
         }
     }
 </script>
