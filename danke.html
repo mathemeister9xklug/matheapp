@@ -1,76 +1,130 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1a1a1a">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ergebnis</title>
+    <title>Mission Complete</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#121212">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; min-height: 80vh; }
-        .card { background: #333; padding: 40px; border-radius: 20px; border: 2px solid #2ecc71; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); max-width: 500px; margin: 0 auto; }
-        h1 { color: #2ecc71; font-size: 2.5em; margin: 0; text-transform: uppercase; margin-bottom: 20px;}
+        /* THEME */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 20px; color: white;
+            text-align: center;
+            display: flex; flex-direction: column; justify-content: center; min-height: 90vh;
+            /* Gleiche Animation wie im Quiz */
+            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #121212);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .card {
+            background: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Glühender Rand je nach Score (wird per JS gesetzt) */
+        .card.winner { border-color: #f1c40f; box-shadow: 0 0 30px rgba(241, 196, 15, 0.3); }
+        .card.normal { border-color: #27ae60; box-shadow: 0 0 30px rgba(39, 174, 96, 0.3); }
+
+        h1 { font-size: 2.2em; margin: 0; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
         
-        .stat-box { background: #444; padding: 15px; border-radius: 10px; margin: 20px 0; font-size: 1.2em; }
-        .highlight { color: #2ecc71; font-weight: bold; font-size: 1.3em; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 30px 0; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; }
+        .stat-label { font-size: 0.8em; color: #aaa; text-transform: uppercase; }
+        .stat-value { font-size: 1.5em; font-weight: bold; display: block; margin-top: 5px; }
+
+        .highlight-green { color: #2ecc71; }
+        .highlight-gold { color: #f1c40f; }
+
+        #message { font-style: italic; color: #ccc; line-height: 1.6; margin-bottom: 30px; }
         
-        #message { font-style: italic; color: #ddd; margin-top: 20px; font-size: 1.1em; line-height: 1.5; }
-        
-        .footer-note { font-size: 0.9em; color: #777; margin-top: 40px; }
+        .btn {
+            display: block;
+            background: transparent;
+            color: #fff;
+            padding: 15px;
+            border: 1px solid #555;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1 id="title">Ausgewertet! 🚀</h1>
+    <div class="card" id="resultCard">
+        <h1 id="title">Ausgewertet</h1>
         
-        <div class="stat-box">
-            Dein Ergebnis:<br>
-            <span id="scoreDisplay" class="highlight">Lade Daten...</span>
-        </div>
-        
-        <div class="stat-box">
-            Deine Zeit:<br>
-            <span id="timeDisplay" class="highlight">...</span>
+        <div class="stat-grid">
+            <div class="stat-box">
+                <span class="stat-label">Genauigkeit</span>
+                <span id="scoreDisplay" class="stat-value">...</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Zeit</span>
+                <span id="timeDisplay" class="stat-value">...</span>
+            </div>
         </div>
 
-        <p id="message">Berechne Feedback...</p>
+        <p id="message">Daten werden analysiert...</p>
 
-        <a href="index.html" style="display:block; margin-top:20px; color:#777; text-decoration:none; border:1px solid #444; padding:10px; border-radius:8px; width:fit-content; margin-left:auto; margin-right:auto;">
-    ⬅ Zurück zur Übersicht
-</a>
+        <a href="index.html" class="btn">⬅ Zurück zur Base</a>
     </div>
 
     <script>
-        // 1. Daten aus der URL holen (Die n8n uns geschickt hat)
+        // 1. Daten aus URL
         const urlParams = new URLSearchParams(window.location.search);
-        
-        // Wir suchen nach ?score=... und ?time=...
-        const scoreRaw = urlParams.get('score') || "unbekannt"; 
+        const scoreRaw = urlParams.get('score') || "0%"; 
         const timeRaw = urlParams.get('time') || "--";
 
-        // 2. Daten anzeigen
-        document.getElementById('scoreDisplay').innerText = scoreRaw;
+        // 2. Anzeigen
+        document.getElementById('scoreDisplay').innerText = scoreRaw.split(' ')[0]; // Nur die % Zahl
         document.getElementById('timeDisplay').innerText = timeRaw;
 
-        // 3. Spruch auswählen (Logik)
-        const percent = parseInt(scoreRaw.split('%')[0]) || 0;
+        // 3. Logik & Styling
+        const percent = parseInt(scoreRaw) || 0;
         let msg = "";
         let title = "";
+        const card = document.getElementById('resultCard');
+        const scoreTxt = document.getElementById('scoreDisplay');
         
         if (percent >= 90) {
-            title = "Maschine! 🏆";
-            msg = "Unglaublich! Du hast fast alles zerlegt.";
+            title = "LEGENDÄR! 🏆";
+            msg = "Perfekte Mission. Du bist bereit für die Master League.";
+            card.classList.add('winner');
+            scoreTxt.classList.add('highlight-gold');
         } else if (percent >= 70) {
-            title = "Stark! 🔥";
-            msg = "Das ist eine solide Leistung. Weiter so!";
+            title = "STARK! 🔥";
+            msg = "Sehr solide Leistung. Weiter so!";
+            card.classList.add('normal');
+            scoreTxt.classList.add('highlight-green');
         } else if (percent >= 50) {
-            title = "Gut! 👍";
-            msg = "Grundlagen sitzen. Ein bisschen Feinschliff noch.";
+            title = "GUT! 👍";
+            msg = "Grundlagen sitzen. Zeit für den Feinschliff.";
+            scoreTxt.classList.add('highlight-green');
         } else {
-            title = "Kopf hoch! 💪";
-            msg = "Das war noch wackelig. Wir schauen uns die Fehler an!";
+            title = "KOPF HOCH 💪";
+            msg = "Aller Anfang ist schwer. Wir werten die Fehler aus und greifen morgen an!";
         }
 
         document.getElementById('title').innerText = title;
@@ -78,5 +132,3 @@
     </script>
 </body>
 </html>
-
-
