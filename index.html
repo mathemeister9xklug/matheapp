@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe-Liga: Dashboard</title>
+    <style>
+        /* --- DESIGN GRUNDLAGEN --- */
+        :root {
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+            --rookie: #27ae60;      /* Grün */
+            --challenger: #2980b9;  /* Blau */
+            --pro: #e74c3c;         /* Rot */
+            --master: #8e44ad;      /* Lila */
+        }
+
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; padding-bottom: 50px; }
+        .container { max-width: 600px; margin: 0 auto; }
+
+        /* HEADER & BEGRÜSSUNG */
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { margin: 0; font-size: 2em; letter-spacing: 1px; text-transform: uppercase; }
+        .subtitle { font-size: 0.9em; color: var(--text-muted); margin-top: 5px; }
+        
+        .user-card { background: linear-gradient(135deg, #333, #222); padding: 15px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; }
+        .user-name { font-weight: bold; font-size: 1.1em; color: #fff; }
+        .user-status { font-size: 0.8em; background: #444; padding: 4px 8px; border-radius: 4px; color: #ccc; }
+
+        /* LIGA ÜBERSCHRIFTEN */
+        .league-title { margin-top: 40px; margin-bottom: 10px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; display: flex; align-items: center; }
+        .league-title::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; }
+        
+        .l-rookie { color: var(--rookie); } .l-rookie::before { background: var(--rookie); }
+        .l-challenger { color: var(--challenger); } .l-challenger::before { background: var(--challenger); }
+        .l-pro { color: var(--pro); } .l-pro::before { background: var(--pro); }
+        .l-master { color: var(--master); } .l-master::before { background: var(--master); }
+
+        /* KARTEN DESIGN */
+        .grid { display: grid; gap: 15px; }
+        
+        .card { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none; 
+            color: white; 
+            position: relative; 
+            overflow: hidden; 
+            transition: transform 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        /* Aktive Karte */
+        .card.active { border-left-color: var(--challenger); box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; }
+        .card.active:hover { transform: scale(1.02); background: #252525; }
+        .card.active .icon { font-size: 1.5em; margin-right: 15px; }
+
+        /* Gesperrte Karte */
+        .card.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.8); }
+        .card.locked .lock-icon { position: absolute; right: 15px; top: 20px; font-size: 1.2em; opacity: 0.5; }
+
+        .card-content { flex: 1; }
+        .card-title { font-weight: bold; font-size: 1.1em; display: block; }
+        .card-meta { font-size: 0.8em; color: var(--text-muted); margin-top: 4px; display: block; }
+
+        /* FOOTER */
+        .footer { text-align: center; margin-top: 50px; font-size: 0.8em; color: #555; }
+        .reset-link { color: #555; text-decoration: underline; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Mathe Liga 🏆</h1>
+        <div class="subtitle">School Championship Season 1</div>
+        
+        <div class="user-card" id="userCard" style="display:none;">
+            <div>
+                <span style="display:block; font-size:0.8em; color:#888;">Angemeldet als:</span>
+                <span class="user-name" id="userNameDisplay">Gast</span>
+            </div>
+            <span class="user-status">Player</span>
+        </div>
+    </header>
+
+    <div class="league-title l-rookie">Rookie League (Kl. 5-6)</div>
+    <div class="grid">
+        <div class="card locked">
+            <span class="icon">🔢</span>
+            <div class="card-content">
+                <span class="card-title">Große Zahlen & Kopfrechnen</span>
+                <span class="card-meta">Training • 15 Fragen</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+        <div class="card locked">
+            <span class="icon">📐</span>
+            <div class="card-content">
+                <span class="card-title">Geometrie Basics</span>
+                <span class="card-meta">Umfang, Fläche & Rechtecke</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+    </div>
+
+    <div class="league-title l-challenger">Challenger League (Kl. 7-8)</div>
+    <div class="grid">
+        
+        <a href="brueche.html" class="card active">
+            <span class="icon">🍕</span> <div class="card-content">
+                <span class="card-title">Brüche, Terme & Dezimal</span>
+                <span class="card-meta">🔥 LIVE • Großes Diagnose-Quiz</span>
+            </div>
+            <span style="background:var(--challenger); font-size:0.7em; padding:3px 8px; border-radius:10px; font-weight:bold;">OPEN</span>
+        </a>
+
+        <div class="card locked">
+            <span class="icon">📈</span>
+            <div class="card-content">
+                <span class="card-title">Prozent & Zinsen</span>
+                <span class="card-meta">Vorbereitung Klassenarbeit</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+        <div class="card locked">
+            <span class="icon">📉</span>
+            <div class="card-content">
+                <span class="card-title">Lineare Funktionen</span>
+                <span class="card-meta">y = mx + b Training</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+    </div>
+
+    <div class="league-title l-pro">Pro League (Kl. 9-10)</div>
+    <div class="grid">
+        <div class="card locked">
+            <span class="icon">📐</span>
+            <div class="card-content">
+                <span class="card-title">Pythagoras & Trigonometrie</span>
+                <span class="card-meta">Sinus, Cosinus & Dreiecke</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+        <div class="card locked">
+            <span class="icon">🚀</span>
+            <div class="card-content">
+                <span class="card-title">Quadratische Funktionen</span>
+                <span class="card-meta">Parabeln & pq-Formel</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+    </div>
+
+    <div class="league-title l-master">Master League (Abi)</div>
+    <div class="grid">
+        <div class="card locked">
+            <span class="icon">🧠</span>
+            <div class="card-content">
+                <span class="card-title">Analysis & Kurvendiskussion</span>
+                <span class="card-meta">Ableitungen & Extrempunkte</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        Mathe-Liga App v1.0<br>
+        <span class="reset-link" onclick="logout()">Nicht du? Ausloggen</span>
+    </div>
+
+</div>
+
+<script>
+    // 1. User erkennen
+    const user = localStorage.getItem('matheLigaUser');
+    
+    if (user) {
+        // User ist bekannt -> Anzeige füllen & anzeigen
+        document.getElementById('userNameDisplay').innerText = user;
+        document.getElementById('userCard').style.display = 'flex';
+    } else {
+        // Kein User -> Box bleibt versteckt oder zeigt Standard
+        document.getElementById('userCard').style.display = 'none';
+    }
+
+    // Logout Funktion
+    function logout() {
+        if(confirm("Möchtest du dich wirklich ausloggen?")) {
+            localStorage.removeItem('matheLigaUser');
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
