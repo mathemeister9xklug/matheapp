@@ -181,26 +181,43 @@
 
 </div>
 
-<script>
-    // 1. User erkennen
-    const user = localStorage.getItem('matheLigaUser');
-    
-    if (user) {
-        // User ist bekannt -> Anzeige füllen & anzeigen
-        document.getElementById('userNameDisplay').innerText = user;
-        document.getElementById('userCard').style.display = 'flex';
-    } else {
-        // Kein User -> Box bleibt versteckt oder zeigt Standard
-        document.getElementById('userCard').style.display = 'none';
+<script><script>
+    // 1. Schauen: Steht eine ID im Link? (z.B. ?id=Jonas)
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentUser = urlParams.get('id');
+
+    // 2. Wenn ja: Sofort im Handy speichern!
+    if (currentUser) {
+        localStorage.setItem('matheLigaUser', currentUser);
+    } 
+    // 3. Wenn nein: Schauen, ob wir ihn schon im Speicher haben
+    else {
+        currentUser = localStorage.getItem('matheLigaUser');
+    }
+
+    // 4. Anzeige aktualisieren
+    if (currentUser) {
+        // Wenn wir den Namen kennen:
+        document.getElementById('userNameDisplay').innerText = currentUser; // Oben im Header
+        document.getElementById('greeting').innerHTML = "Hey <strong>" + currentUser + "</strong>! 👋"; // In der Box
+        document.getElementById('userCard').style.display = 'flex'; // Header-Karte zeigen
+        
+        // Links anpassen: Wir hängen die ID an den Link zum Quiz an, zur Sicherheit
+        // (Falls der Speicher im Quiz versagt, hilft der Link)
+        const quizLink = document.querySelector('a[href="brueche.html"]');
+        if(quizLink) {
+            quizLink.href = "brueche.html?id=" + currentUser;
+        }
     }
 
     // Logout Funktion
     function logout() {
-        if(confirm("Möchtest du dich wirklich ausloggen?")) {
+        if(confirm("Ausloggen?")) {
             localStorage.removeItem('matheLigaUser');
-            location.reload();
+            window.location.href = window.location.pathname; // Seite neu laden ohne ID
         }
     }
+</script>
 </script>
 
 </body>
