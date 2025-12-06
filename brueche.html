@@ -3,58 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mathe-Liga Diagnose</title>
+    <title>Mission: Brüche</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#2c3e50">
+    <meta name="theme-color" content="#121212">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <style>
-        /* --- DESIGN --- */
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #eef2f5; margin: 0; padding: 20px; color: #333; padding-bottom: 80px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 8px solid #2980b9; }
-        
-        h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-size: 1.8em; }
-        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; font-style: italic; font-size: 0.9em; }
+        /* --- GAMING THEME & ANIMATION --- */
+        :root {
+            --bg-dark: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --accent: #3498db;  /* Challenger Blau */
+            --success: #27ae60; /* Rookie Grün */
+        }
 
-        /* BRUCH-DARSTELLUNG */
-        .frac { display: inline-block; text-align: center; vertical-align: middle; position: relative; top: -3px; font-size: 0.9em; padding: 0 2px; }
-        .frac .top { display: block; border-bottom: 1px solid #333; padding: 0 2px; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 20px; color: var(--text-main);
+            padding-bottom: 100px;
+            /* Animierter Hintergrund */
+            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #121212);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container { max-width: 700px; margin: 0 auto; }
+
+        /* HEADER */
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { margin: 0; text-transform: uppercase; letter-spacing: 2px; font-size: 1.5em; color: var(--accent); text-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
+        .subtitle { color: #888; font-size: 0.9em; margin-top: 5px; }
+
+        /* BRUCH-DARSTELLUNG (Dark Mode tauglich) */
+        .frac { display: inline-block; text-align: center; vertical-align: middle; position: relative; top: -5px; font-size: 0.9em; padding: 0 4px; }
+        .frac .top { display: block; border-bottom: 1px solid rgba(255,255,255,0.7); padding: 0 2px; }
         .frac .bottom { display: block; padding: 0 2px; }
-        .mixed { font-size: 1.1em; margin-right: 2px; } 
+        .mixed { font-size: 1.2em; margin-right: 4px; font-weight: bold; }
 
         /* SEKTIONEN */
-        .section-title { background: #f0f8ff; padding: 10px 15px; border-left: 5px solid #2980b9; margin-top: 30px; margin-bottom: 15px; font-size: 1.1em; color: #2980b9; font-weight: bold; }
-        
-        /* FRAGEN */
-        .question-block { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
-        .q-text { font-weight: 600; margin-bottom: 15px; display: block; font-size: 1.05em; }
-        
-        /* RADIO BUTTONS */
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } 
-        @media(max-width: 600px) { .options-grid { grid-template-columns: 1fr; } }
+        .section-title { 
+            margin-top: 50px; margin-bottom: 20px; 
+            font-size: 1em; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 1px solid #333; padding-bottom: 5px;
+        }
 
-        .radio-label { display: flex; align-items: center; padding: 12px; background: #fafafa; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-        .radio-label:hover { background: #e8f4fc; border-color: #3498db; }
-        .radio-label input { margin-right: 10px; transform: scale(1.3); }
+        /* FRAGEN-KARTEN */
+        .question-block { 
+            background: rgba(30, 30, 30, 0.9); /* Leicht transparent */
+            backdrop-filter: blur(5px);
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 25px; 
+            border: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .q-text { font-weight: 500; font-size: 1.1em; display: block; margin-bottom: 20px; }
 
-        /* INPUTS */
-        input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; background: #fff; }
+        /* RADIO BUTTONS (Als Kacheln) */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } 
+        @media(max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
 
-        /* BUTTON */
-        button { display: block; width: 100%; padding: 20px; margin-top: 40px; background-color: #27ae60; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #219150; }
-        button:hover { background-color: #2ecc71; }
-        button:active { transform: translateY(4px); box-shadow: none; }
-        button:disabled { background-color: #95a5a6; cursor: not-allowed; box-shadow: none; }
+        .radio-label { 
+            display: flex; align-items: center; padding: 15px; 
+            background: #2a2a2a; border: 1px solid #444; border-radius: 10px; 
+            cursor: pointer; transition: all 0.2s; 
+        }
+        .radio-label:hover { background: #333; border-color: var(--accent); }
+        /* Wenn ausgewählt (Checked) - kleiner Trick */
+        .radio-label:has(input:checked) { background: rgba(52, 152, 219, 0.2); border-color: var(--accent); }
         
-        .hidden { display: none; }
+        .radio-label input { margin-right: 12px; accent-color: var(--accent); transform: scale(1.2); }
+
+        /* INPUTS (User Info) */
+        input[type="text"], select { 
+            width: 100%; padding: 15px; 
+            background: #222; border: 1px solid #444; color: white;
+            border-radius: 8px; font-size: 16px; box-sizing: border-box; 
+        }
+        input:focus { outline: none; border-color: var(--accent); }
+
+        /* BUTTON (Neon Style) */
+        button { 
+            display: block; width: 100%; padding: 20px; margin-top: 50px; 
+            background: var(--success); color: white; border: none; border-radius: 12px; 
+            font-size: 1.2em; font-weight: bold; cursor: pointer; 
+            box-shadow: 0 0 20px rgba(39, 174, 96, 0.4); 
+            transition: transform 0.1s;
+        }
+        button:hover { background: #2ecc71; transform: scale(1.02); }
+        button:active { transform: scale(0.98); }
+        button:disabled { background: #555; box-shadow: none; cursor: wait; }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Mathe-Liga Diagnose</h1>
-    <p class="subtitle">Thema: Brüche & Terme</p>
+    <header>
+        <h1>Mission: Brüche</h1>
+        <div class="subtitle">Diagnose-Protokoll v1.0</div>
+    </header>
 
     <form id="quizForm" action="https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba" method="POST">
         
@@ -63,20 +119,20 @@
         <input type="hidden" name="Rohdaten" id="rawInput" value="">
         <input type="hidden" name="Thema" value="Brueche_Terme">
         
-        <div id="welcomeMessage" style="display:none; background:#d1fae5; color:#065f46; padding:15px; border-radius:8px; margin-bottom:20px; border: 1px solid #10b981; text-align:center;">
-            👋 Moin <strong id="displayName">...</strong>!
-            <br><small onclick="resetUser()" style="cursor:pointer; text-decoration:underline; font-size:0.85em; display:block; margin-top:5px;">(Nicht du? Hier ändern)</small>
+        <div id="welcomeMessage" style="display:none; background:rgba(39, 174, 96, 0.2); color:#2ecc71; padding:15px; border-radius:10px; margin-bottom:25px; border: 1px solid #27ae60; text-align:center;">
+            👋 Pilot <strong id="displayName">...</strong> erkannt.
+            <br><small onclick="resetUser()" style="cursor:pointer; text-decoration:underline; font-size:0.8em; color:#aaa; display:block; margin-top:5px;">(Identität wechseln)</small>
         </div>
 
         <div id="nameInputContainer" style="margin-bottom: 20px;">
-            <label style="font-weight:bold; display:block; margin-bottom:5px;">Dein Name / Nickname:</label>
+            <label style="font-size:0.9em; color:#aaa; margin-bottom:8px; display:block;">Codename / Nickname:</label>
             <input type="text" name="01_name" id="nameInput" required placeholder="z.B. Jonas_729">
         </div>
 
         <div style="margin-bottom: 40px;">
-            <label style="font-weight:bold; display:block; margin-bottom:5px;">Deine Schule:</label>
+            <label style="font-size:0.9em; color:#aaa; margin-bottom:8px; display:block;">Deine Basis (Schule):</label>
             <select name="Schule" id="schoolInput" required>
-                <option value="" disabled selected>Bitte wählen...</option>
+                <option value="" disabled selected>Wähle deine Schule...</option>
                 <option value="Goethe-Gymnasium">Goethe-Gymnasium</option>
                 <option value="Leibniz-Realschule">Leibniz-Realschule</option>
                 <option value="Stadtteilschule">Stadtteilschule</option>
@@ -84,7 +140,7 @@
             </select>
         </div>
 
-        <div class="section-title">A. Gemischte Zahlen</div>
+        <div class="section-title">Block A: Gemischte Zahlen</div>
 
         <div class="question-block">
             <span class="q-text">1. Schreibe als unechten Bruch: <span class="mixed">2</span><div class="frac"><span class="top">1</span><span class="bottom">3</span></div></span>
@@ -106,70 +162,45 @@
             </div>
         </div>
 
-        <button type="submit" id="submitBtn">Diagnose abschließen & Senden</button>
+        <button type="submit" id="submitBtn">DATEN SENDEN 🚀</button>
 
     </form>
 </div>
 
 <script>
-    // --- TEIL 1: DAS GEDÄCHTNIS ---
-    
-    // Prüfen: ID im Link?
+    // --- GEDÄCHTNIS ---
     const urlParams = new URLSearchParams(window.location.search);
-    let user = urlParams.get('id'); 
+    let user = urlParams.get('id') || localStorage.getItem('matheLigaUser');
 
-    // Prüfen: ID im Speicher?
-    if (!user) {
-        user = localStorage.getItem('matheLigaUser'); 
-    }
-
-    // Wenn User bekannt:
     if (user) {
-        // Speichern
-        localStorage.setItem('matheLigaUser', user); 
-        
-        // 1. Feld ausfüllen
-        const nameField = document.getElementById('nameInput');
-        if(nameField) nameField.value = user;
-        
-        // 2. Feld verstecken
-        const inputContainer = document.getElementById('nameInputContainer');
-        if(inputContainer) inputContainer.style.display = 'none';
-        
-        // 3. Begrüßung zeigen
-        const welcomeMsg = document.getElementById('welcomeMessage');
-        const displaySpan = document.getElementById('displayName');
-        
-        if(displaySpan) displaySpan.innerText = user;
-        if(welcomeMsg) welcomeMsg.style.display = 'block';
+        localStorage.setItem('matheLigaUser', user);
+        if(document.getElementById('nameInput')) document.getElementById('nameInput').value = user;
+        if(document.getElementById('nameInputContainer')) document.getElementById('nameInputContainer').style.display = 'none';
+        if(document.getElementById('displayName')) document.getElementById('displayName').innerText = user;
+        if(document.getElementById('welcomeMessage')) document.getElementById('welcomeMessage').style.display = 'block';
     }
 
     function resetUser() {
-        if(confirm("Namen wirklich löschen?")) {
+        if(confirm("Identität wirklich löschen?")) {
             localStorage.removeItem('matheLigaUser');
-            // Seite neu laden ohne ID Parameter
             window.location.href = window.location.pathname; 
         }
     }
 
-    // --- TEIL 2: DIE LOGIK ---
-
+    // --- LOGIK ---
     const startTime = new Date();
 
     document.getElementById('quizForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
-        
         const btn = document.getElementById('submitBtn');
-        btn.innerText = "Sende Daten...";
+        btn.innerText = "Sende Paket...";
         btn.disabled = true;
         
-        // Daten sammeln
         const name = document.getElementById('nameInput').value;
         const endTime = new Date();
         const seconds = Math.floor((endTime - startTime) / 1000);
         const durationString = Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
 
-        // Score
         const allRadios = document.querySelectorAll('input[type="radio"]:checked');
         let correct = 0;
         let details = "";
@@ -179,17 +210,14 @@
             details += r.name + ": " + r.value + " | ";
         });
         
-        // Score berechnen (Beispiel mit 25)
-        // ACHTUNG: Wenn du weniger Fragen hast zum Testen, ändere die 25 hier!
+        // HIER FRAGENANZAHL ANPASSEN!
         const total = 25; 
         const scoreString = Math.round((correct / total) * 100) + "% (" + correct + "/" + total + ")";
 
-        // Versteckte Felder füllen
         document.getElementById('scoreInput').value = scoreString;
         document.getElementById('durationInput').value = durationString;
         document.getElementById('rawInput').value = details;
 
-        // Falls Name neu eingetippt wurde -> Merken!
         if(!user && name) {
             localStorage.setItem('matheLigaUser', name);
         }
