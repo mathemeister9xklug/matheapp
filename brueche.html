@@ -59,9 +59,18 @@
         <input type="hidden" name="00_SCORE" id="scoreInput" value="">
         <input type="hidden" name="00_DAUER" id="durationInput" value="">
         <input type="hidden" name="Rohdaten" id="rawInput" value=""> <div style="margin-bottom: 20px;">
-            <label style="font-weight:bold; display:block; margin-bottom:5px;">Dein Name:</label>
-            <input type="text" name="01_name" id="nameInput" required placeholder="Vorname Nachname">
-        </div>
+    
+    <div id="welcomeMessage" style="display:none; background:#d1fae5; color:#065f46; padding:15px; border-radius:6px; margin-bottom:15px; border: 1px solid #10b981;">
+        👋 Moin <strong id="displayName">...</strong>! Viel Erfolg.
+        <br><small onclick="resetUser()" style="cursor:pointer; text-decoration:underline; font-size:0.8em;">(Nicht du? Ändern)</small>
+    </div>
+
+    <div id="nameInputContainer">
+        <label style="font-weight:bold; display:block; margin-bottom:5px;">Dein Name:</label>
+        <input type="text" name="01_name" id="nameInput" required placeholder="Vorname Nachname">
+    </div>
+
+</div>
 
         <div style="margin-bottom: 40px;">
             <label style="font-weight:bold; display:block; margin-bottom:5px;">Deine Schule:</label>
@@ -312,40 +321,74 @@
 </div>
 
 <script>
+    // --- GEDÄCHTNIS START ---
+    const urlParams = new URLSearchParams(window.location.search);
+    let user = urlParams.get('id'); // Kommt es aus dem Link?
+
+    if (!user) {
+        user = localStorage.getItem('matheLigaUser'); // Kommt es aus dem Speicher?
+    }
+
+    if (user) {
+        // Wir kennen den User!
+        localStorage.setItem('matheLigaUser', user); // Zur Sicherheit nochmal speichern
+        
+        // 1. Formularfeld heimlich ausfüllen
+        document.getElementById('nameInput').value = user;
+        
+        // 2. Eingabefeld verstecken (sieht magisch aus)
+        document.getElementById('nameInputContainer').style.display = 'none';
+        
+        // 3. Begrüßung zeigen
+        document.getElementById('displayName').innerText = user;
+        document.getElementById('welcomeMessage').style.display = 'block';
+    }
+
+    function resetUser() {
+        localStorage.removeItem('matheLigaUser');
+        location.reload();
+    }
+    // --- GEDÄCHTNIS ENDE ---
+
+
+    // --- HIER DEIN BESTEHENDER QUIZ-CODE (Zeit, Score etc.) ---
     const startTime = new Date();
 
     document.getElementById('quizForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
-        
         const btn = document.getElementById('submitBtn');
         btn.innerText = "Rechne & Sende...";
         
-        // 1. Daten sammeln
-        const name = document.getElementById('nameInput').value;
+        // ... (Der Rest deines alten Codes bleibt gleich) ...
+        // WICHTIG: Achte darauf, dass du beim "Daten sammeln" jetzt 
+        // document.getElementById('nameInput').value nimmst!
+        
+        const name = document.getElementById('nameInput').value; // <--- HIER DRAUF ACHTEN
         const endTime = new Date();
         const seconds = Math.floor((endTime - startTime) / 1000);
         const durationString = Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
 
-        // 2. Score berechnen & Rohdaten sammeln
         const allRadios = document.querySelectorAll('input[type="radio"]:checked');
         let correct = 0;
         let details = "";
         
         allRadios.forEach(r => {
             if(r.value.includes('✅')) correct++;
-            // Sammelt z.B. "A01: ✅ RICHTIG |"
             details += r.name + ": " + r.value + " | ";
         });
         
-        const total = 25; // Fest 25 Fragen
+        const total = 25; 
         const scoreString = Math.round((correct / total) * 100) + "% (" + correct + "/" + total + ")";
 
-        // 3. Versteckte Felder füllen (für n8n)
         document.getElementById('scoreInput').value = scoreString;
         document.getElementById('durationInput').value = durationString;
         document.getElementById('rawInput').value = details;
 
-        // 4. Absenden (Normales POST, umgeht CORS)
+        // Wenn der User den Namen manuell eingetippt hat, merken wir ihn uns jetzt für nächstes Mal
+        if(!user && name) {
+            localStorage.setItem('matheLigaUser', name);
+        }
+
         e.target.submit();
     });
 </script>
@@ -353,6 +396,7 @@
 </body>
 
 </html>
+
 
 
 
