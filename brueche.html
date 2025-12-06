@@ -321,81 +321,96 @@
 </div>
 
 <script>
-    // --- GEDÄCHTNIS START ---
+    // ==========================================
+    // TEIL 1: DAS GEDÄCHTNIS (Magic Link Check)
+    // ==========================================
+    
+    // Wir prüfen: Gibt es eine ID im Link? (?id=Jonas)
     const urlParams = new URLSearchParams(window.location.search);
-    let user = urlParams.get('id'); // Kommt es aus dem Link?
+    let user = urlParams.get('id'); 
 
+    // Wenn nicht im Link, schauen wir im Handy-Speicher nach
     if (!user) {
-        user = localStorage.getItem('matheLigaUser'); // Kommt es aus dem Speicher?
+        user = localStorage.getItem('matheLigaUser'); 
     }
 
+    // Wenn wir einen User gefunden haben (egal woher):
     if (user) {
-        // Wir kennen den User!
-        localStorage.setItem('matheLigaUser', user); // Zur Sicherheit nochmal speichern
+        // Zur Sicherheit speichern
+        localStorage.setItem('matheLigaUser', user); 
         
-        // 1. Formularfeld heimlich ausfüllen
+        // A) Formularfeld heimlich ausfüllen (damit n8n die Daten kriegt)
         document.getElementById('nameInput').value = user;
         
-        // 2. Eingabefeld verstecken (sieht magisch aus)
+        // B) Das Eingabefeld verstecken (sieht magisch aus)
         document.getElementById('nameInputContainer').style.display = 'none';
         
-        // 3. Begrüßung zeigen
+        // C) Nette Begrüßung anzeigen
         document.getElementById('displayName').innerText = user;
         document.getElementById('welcomeMessage').style.display = 'block';
     }
 
+    // Funktion zum Ausloggen (falls man auf "Nicht du?" klickt)
     function resetUser() {
-        localStorage.removeItem('matheLigaUser');
-        location.reload();
+        if(confirm("Willst du deinen gespeicherten Namen löschen?")) {
+            localStorage.removeItem('matheLigaUser');
+            location.href = window.location.pathname; // Seite neu laden ohne ID
+        }
     }
-    // --- GEDÄCHTNIS ENDE ---
 
 
-    // --- HIER DEIN BESTEHENDER QUIZ-CODE (Zeit, Score etc.) ---
+    // ==========================================
+    // TEIL 2: DIE DIAGNOSE (Punkte zählen)
+    // ==========================================
+
     const startTime = new Date();
 
     document.getElementById('quizForm').addEventListener('submit', function(e) {
+        // Stoppen, um zu rechnen
         e.preventDefault(); 
+        
         const btn = document.getElementById('submitBtn');
         btn.innerText = "Rechne & Sende...";
+        btn.disabled = true; // Button sperren damit man nicht 2x klickt
         
-        // ... (Der Rest deines alten Codes bleibt gleich) ...
-        // WICHTIG: Achte darauf, dass du beim "Daten sammeln" jetzt 
-        // document.getElementById('nameInput').value nimmst!
-        
-        const name = document.getElementById('nameInput').value; // <--- HIER DRAUF ACHTEN
+        // 1. Daten sammeln
+        const name = document.getElementById('nameInput').value;
         const endTime = new Date();
         const seconds = Math.floor((endTime - startTime) / 1000);
         const durationString = Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
 
+        // 2. Score berechnen & Rohdaten sammeln
         const allRadios = document.querySelectorAll('input[type="radio"]:checked');
         let correct = 0;
         let details = "";
         
         allRadios.forEach(r => {
             if(r.value.includes('✅')) correct++;
+            // Sammelt z.B. "A01: ✅ RICHTIG |"
             details += r.name + ": " + r.value + " | ";
         });
         
-        const total = 25; 
+        const total = 25; // Fest 25 Fragen
         const scoreString = Math.round((correct / total) * 100) + "% (" + correct + "/" + total + ")";
 
+        // 3. Versteckte Felder füllen (für n8n)
         document.getElementById('scoreInput').value = scoreString;
         document.getElementById('durationInput').value = durationString;
         document.getElementById('rawInput').value = details;
 
-        // Wenn der User den Namen manuell eingetippt hat, merken wir ihn uns jetzt für nächstes Mal
+        // 4. Wenn der User den Namen manuell eingetippt hat, merken wir ihn uns jetzt für nächstes Mal
         if(!user && name) {
             localStorage.setItem('matheLigaUser', name);
         }
 
+        // 5. Absenden
         e.target.submit();
     });
 </script>
-
 </body>
 
 </html>
+
 
 
 
