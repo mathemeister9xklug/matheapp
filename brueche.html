@@ -10,10 +10,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <style>
-        /* --- GAMING THEME & ANIMATION --- */
+        /* --- GAMING THEME COLORS --- */
         :root {
             --bg-dark: #121212;
-            --card-bg: #1e1e1e;
+            --card-bg: rgba(30, 30, 30, 0.95);
             --text-main: #ffffff;
             --accent: #3498db;  /* Challenger Blau */
             --success: #27ae60; /* Rookie Grün */
@@ -22,27 +22,46 @@
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 20px; color: var(--text-main);
+            background-color: var(--bg-dark); /* Fester dunkler Hintergrund */
             padding-bottom: 100px;
-            /* Animierter Hintergrund */
-            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #121212);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            overflow-x: hidden; /* Verhindert seitliches Scrollen durch Animation */
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* --- NEUE HINTERGRUND ANIMATION (Geometrie) --- */
+        .bg-animation {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; /* Hinter dem Inhalt */
+            overflow: hidden;
+            pointer-events: none; /* Klicks gehen durch */
         }
 
-        .container { max-width: 700px; margin: 0 auto; }
+        .shape {
+            position: absolute;
+            opacity: 0.15; /* Sehr dezent */
+            filter: blur(8px); /* Weicher Look */
+            animation: float 25s infinite linear;
+        }
+
+        /* Verschiedene Formen */
+        .s1 { top: 10%; left: 5%; width: 150px; height: 150px; background: var(--accent); border-radius: 20px; animation-duration: 35s; }
+        .s2 { top: 70%; left: 80%; width: 200px; height: 200px; background: var(--success); border-radius: 50%; animation-delay: -5s; }
+        .s3 { top: 40%; left: 60%; width: 100px; height: 100px; background: var(--accent); transform: rotate(45deg); animation-duration: 45s; animation-delay: -10s;}
+        .s4 { top: 80%; left: 10%; width: 120px; height: 120px; border: 5px solid var(--success); animation-duration: 30s; animation-delay: -15s;}
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            50% { transform: translateY(-100px) rotate(180deg) scale(1.1); }
+            100% { transform: translateY(0) rotate(360deg) scale(1); }
+        }
+
+        .container { max-width: 700px; margin: 0 auto; position: relative; z-index: 2; }
 
         /* HEADER */
         header { text-align: center; margin-bottom: 40px; }
         h1 { margin: 0; text-transform: uppercase; letter-spacing: 2px; font-size: 1.5em; color: var(--accent); text-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
         .subtitle { color: #888; font-size: 0.9em; margin-top: 5px; }
 
-        /* BRUCH-DARSTELLUNG (Dark Mode tauglich) */
+        /* BRUCH-DARSTELLUNG */
         .frac { display: inline-block; text-align: center; vertical-align: middle; position: relative; top: -5px; font-size: 0.9em; padding: 0 4px; }
         .frac .top { display: block; border-bottom: 1px solid rgba(255,255,255,0.7); padding: 0 2px; }
         .frac .bottom { display: block; padding: 0 2px; }
@@ -55,10 +74,9 @@
             border-bottom: 1px solid #333; padding-bottom: 5px;
         }
 
-        /* FRAGEN-KARTEN */
+        /* FRAGEN-KARTEN (Jetzt undurchsichtiger damit man besser liest) */
         .question-block { 
-            background: rgba(30, 30, 30, 0.9); /* Leicht transparent */
-            backdrop-filter: blur(5px);
+            background: var(--card-bg);
             padding: 20px; 
             border-radius: 15px; 
             margin-bottom: 25px; 
@@ -67,7 +85,7 @@
         }
         .q-text { font-weight: 500; font-size: 1.1em; display: block; margin-bottom: 20px; }
 
-        /* RADIO BUTTONS (Als Kacheln) */
+        /* RADIO BUTTONS */
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } 
         @media(max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
 
@@ -77,12 +95,10 @@
             cursor: pointer; transition: all 0.2s; 
         }
         .radio-label:hover { background: #333; border-color: var(--accent); }
-        /* Wenn ausgewählt (Checked) - kleiner Trick */
         .radio-label:has(input:checked) { background: rgba(52, 152, 219, 0.2); border-color: var(--accent); }
-        
         .radio-label input { margin-right: 12px; accent-color: var(--accent); transform: scale(1.2); }
 
-        /* INPUTS (User Info) */
+        /* INPUTS */
         input[type="text"], select { 
             width: 100%; padding: 15px; 
             background: #222; border: 1px solid #444; color: white;
@@ -90,7 +106,7 @@
         }
         input:focus { outline: none; border-color: var(--accent); }
 
-        /* BUTTON (Neon Style) */
+        /* BUTTON */
         button { 
             display: block; width: 100%; padding: 20px; margin-top: 50px; 
             background: var(--success); color: white; border: none; border-radius: 12px; 
@@ -106,10 +122,17 @@
 </head>
 <body>
 
+<div class="bg-animation">
+    <div class="shape s1"></div>
+    <div class="shape s2"></div>
+    <div class="shape s3"></div>
+    <div class="shape s4"></div>
+</div>
+
 <div class="container">
     <header>
         <h1>Mission: Brüche</h1>
-        <div class="subtitle">Diagnose-Protokoll v1.0</div>
+        <div class="subtitle">Diagnose-Protokoll v1.1</div>
     </header>
 
     <form id="quizForm" action="https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba" method="POST">
@@ -141,26 +164,8 @@
         </div>
 
         <div class="section-title">Block A: Gemischte Zahlen</div>
+        <p style="color:#666; font-style:italic;">(Hier müssen deine Fragen aus dem alten Code wieder rein...)</p>
 
-        <div class="question-block">
-            <span class="q-text">1. Schreibe als unechten Bruch: <span class="mixed">2</span><div class="frac"><span class="top">1</span><span class="bottom">3</span></div></span>
-            <div class="options-grid">
-                <label class="radio-label"><input type="radio" name="A01" value="✅ RICHTIG (7/3)" required> <div class="frac"><span class="top">7</span><span class="bottom">3</span></div></label>
-                <label class="radio-label"><input type="radio" name="A01" value="❌ FEHLER (2/3)"> <div class="frac"><span class="top">2</span><span class="bottom">3</span></div></label>
-                <label class="radio-label"><input type="radio" name="A01" value="❌ FEHLER (3/3)"> <div class="frac"><span class="top">3</span><span class="bottom">3</span></div></label>
-                <label class="radio-label"><input type="radio" name="A01" value="❌ FEHLER (5/3)"> <div class="frac"><span class="top">5</span><span class="bottom">3</span></div></label>
-            </div>
-        </div>
-
-        <div class="question-block">
-            <span class="q-text">2. Schreibe als gemischte Zahl: <div class="frac"><span class="top">13</span><span class="bottom">4</span></div></span>
-            <div class="options-grid">
-                <label class="radio-label"><input type="radio" name="A02" value="❌ FEHLER (3 2/4)"> <span class="mixed">3</span><div class="frac"><span class="top">2</span><span class="bottom">4</span></div></label>
-                <label class="radio-label"><input type="radio" name="A02" value="✅ RICHTIG (3 1/4)"> <span class="mixed">3</span><div class="frac"><span class="top">1</span><span class="bottom">4</span></div></label>
-                <label class="radio-label"><input type="radio" name="A02" value="❌ FEHLER (4 1/4)"> <span class="mixed">4</span><div class="frac"><span class="top">1</span><span class="bottom">4</span></div></label>
-                <label class="radio-label"><input type="radio" name="A02" value="❌ FEHLER (1.3)"> 3,25</label>
-            </div>
-        </div>
 
         <button type="submit" id="submitBtn">DATEN SENDEN 🚀</button>
 
