@@ -419,26 +419,46 @@
 </div>
 
 <script>
-    // --- GEDÄCHTNIS ---
+    // --- GEDÄCHTNIS (NAME & SCHULE) ---
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // 1. Daten laden
     let user = urlParams.get('id') || localStorage.getItem('matheLigaUser');
+    let school = localStorage.getItem('matheLigaSchool');
 
+    // 2. Anwenden
     if (user) {
         localStorage.setItem('matheLigaUser', user);
+        
+        // Name füllen & verstecken
         if(document.getElementById('nameInput')) document.getElementById('nameInput').value = user;
         if(document.getElementById('nameInputContainer')) document.getElementById('nameInputContainer').style.display = 'none';
+        
+        // Begrüßung
         if(document.getElementById('displayName')) document.getElementById('displayName').innerText = user;
         if(document.getElementById('welcomeMessage')) document.getElementById('welcomeMessage').style.display = 'block';
     }
 
+    if (school) {
+        // Schule füllen
+        const schoolField = document.getElementById('schoolInput');
+        if (schoolField) {
+            schoolField.value = school;
+            // Optional: Das Feld verstecken oder ausgrauen, damit man nicht immer klickt
+            // schoolField.style.background = "#333"; 
+            // schoolField.style.color = "#777";
+        }
+    }
+
     function resetUser() {
-        if(confirm("Identität wirklich löschen?")) {
+        if(confirm("Identität & Schule löschen?")) {
             localStorage.removeItem('matheLigaUser');
+            localStorage.removeItem('matheLigaSchool');
             window.location.href = window.location.pathname; 
         }
     }
 
-    // --- LOGIK ---
+    // --- QUIZ LOGIK ---
     const startTime = new Date();
 
     document.getElementById('quizForm').addEventListener('submit', function(e) {
@@ -448,6 +468,17 @@
         btn.disabled = true;
         
         const name = document.getElementById('nameInput').value;
+        const currentSchool = document.getElementById('schoolInput').value; // Schule holen
+
+        // --- SCHULE SPEICHERN ---
+        if(currentSchool) {
+            localStorage.setItem('matheLigaSchool', currentSchool);
+        }
+        if(!user && name) {
+            localStorage.setItem('matheLigaUser', name);
+        }
+
+        // --- RESTLICHE BERECHNUNG ---
         const endTime = new Date();
         const seconds = Math.floor((endTime - startTime) / 1000);
         const durationString = Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
@@ -461,7 +492,6 @@
             details += r.name + ": " + r.value + " | ";
         });
         
-        // HIER FRAGENANZAHL ANPASSEN!
         const total = 25; 
         const scoreString = Math.round((correct / total) * 100) + "% (" + correct + "/" + total + ")";
 
@@ -469,13 +499,9 @@
         document.getElementById('durationInput').value = durationString;
         document.getElementById('rawInput').value = details;
 
-        if(!user && name) {
-            localStorage.setItem('matheLigaUser', name);
-        }
-
         e.target.submit();
     });
 </script>
-
 </body>
 </html>
+
