@@ -22,27 +22,22 @@
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 20px; color: var(--text-main);
-            background-color: var(--bg-dark); /* Fester dunkler Hintergrund */
+            background-color: var(--bg-dark);
             padding-bottom: 100px;
-            overflow-x: hidden; /* Verhindert seitliches Scrollen durch Animation */
+            overflow-x: hidden;
         }
 
-        /* --- NEUE HINTERGRUND ANIMATION (Geometrie) --- */
+        /* --- HINTERGRUND ANIMATION (Geometrie) --- */
         .bg-animation {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; /* Hinter dem Inhalt */
-            overflow: hidden;
-            pointer-events: none; /* Klicks gehen durch */
+            z-index: -1; overflow: hidden; pointer-events: none;
         }
 
         .shape {
-            position: absolute;
-            opacity: 0.15; /* Sehr dezent */
-            filter: blur(8px); /* Weicher Look */
+            position: absolute; opacity: 0.15; filter: blur(8px);
             animation: float 25s infinite linear;
         }
 
-        /* Verschiedene Formen */
         .s1 { top: 10%; left: 5%; width: 150px; height: 150px; background: var(--accent); border-radius: 20px; animation-duration: 35s; }
         .s2 { top: 70%; left: 80%; width: 200px; height: 200px; background: var(--success); border-radius: 50%; animation-delay: -5s; }
         .s3 { top: 40%; left: 60%; width: 100px; height: 100px; background: var(--accent); transform: rotate(45deg); animation-duration: 45s; animation-delay: -10s;}
@@ -74,14 +69,10 @@
             border-bottom: 1px solid #333; padding-bottom: 5px;
         }
 
-        /* FRAGEN-KARTEN (Jetzt undurchsichtiger damit man besser liest) */
+        /* FRAGEN-KARTEN */
         .question-block { 
-            background: var(--card-bg);
-            padding: 20px; 
-            border-radius: 15px; 
-            margin-bottom: 25px; 
-            border: 1px solid #333;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: var(--card-bg); padding: 20px; border-radius: 15px; 
+            margin-bottom: 25px; border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .q-text { font-weight: 500; font-size: 1.1em; display: block; margin-bottom: 20px; }
 
@@ -100,8 +91,7 @@
 
         /* INPUTS */
         input[type="text"], select { 
-            width: 100%; padding: 15px; 
-            background: #222; border: 1px solid #444; color: white;
+            width: 100%; padding: 15px; background: #222; border: 1px solid #444; color: white;
             border-radius: 8px; font-size: 16px; box-sizing: border-box; 
         }
         input:focus { outline: none; border-color: var(--accent); }
@@ -111,8 +101,7 @@
             display: block; width: 100%; padding: 20px; margin-top: 50px; 
             background: var(--success); color: white; border: none; border-radius: 12px; 
             font-size: 1.2em; font-weight: bold; cursor: pointer; 
-            box-shadow: 0 0 20px rgba(39, 174, 96, 0.4); 
-            transition: transform 0.1s;
+            box-shadow: 0 0 20px rgba(39, 174, 96, 0.4); transition: transform 0.1s;
         }
         button:hover { background: #2ecc71; transform: scale(1.02); }
         button:active { transform: scale(0.98); }
@@ -132,10 +121,10 @@
 <div class="container">
     <header>
         <h1>Mission: Brüche</h1>
-        <div class="subtitle">Diagnose-Protokoll v1.1</div>
+        <div class="subtitle">Diagnose-Protokoll v1.2</div>
     </header>
 
-    <form id="quizForm" action="https://mathemeister.app.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba" method="POST">
+    <form id="quizForm" action="https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba" method="POST">
         
         <input type="hidden" name="00_SCORE" id="scoreInput" value="">
         <input type="hidden" name="00_DAUER" id="durationInput" value="">
@@ -163,8 +152,265 @@
             </select>
         </div>
 
-        <div class="section-title">Block A: Gemischte Zahlen</div>
-        <p style="color:#666; font-style:italic;">(Hier müssen deine Fragen aus dem alten Code wieder rein...)</p>
+        <div class="section-title">Block A: Gemischte Zahlen (5 Fragen)</div>
+
+        <div class="question-block">
+            <span class="q-text">1. Schreibe als unechten Bruch: <span class="mixed">2</span><div class="frac"><span class="top">1</span><span class="bottom">3</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="A01" value="✅ RICHTIG (7/3)" required> <div class="frac"><span class="top">7</span><span class="bottom">3</span></div></label>
+                <label class="radio-label"><input type="radio" name="A01" value="❌ FEHLER (2/3)"> <div class="frac"><span class="top">2</span><span class="bottom">3</span></div></label>
+                <label class="radio-label"><input type="radio" name="A01" value="❌ FEHLER (3/3)"> <div class="frac"><span class="top">3</span><span class="bottom">3</span></div></label>
+                <label class="radio-label"><input type="radio" name="A01" value="❌ FEHLER (5/3)"> <div class="frac"><span class="top">5</span><span class="bottom">3</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">2. Schreibe als gemischte Zahl: <div class="frac"><span class="top">13</span><span class="bottom">4</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="A02" value="❌ FEHLER (3 2/4)"> <span class="mixed">3</span><div class="frac"><span class="top">2</span><span class="bottom">4</span></div></label>
+                <label class="radio-label"><input type="radio" name="A02" value="✅ RICHTIG (3 1/4)"> <span class="mixed">3</span><div class="frac"><span class="top">1</span><span class="bottom">4</span></div></label>
+                <label class="radio-label"><input type="radio" name="A02" value="❌ FEHLER (4 1/4)"> <span class="mixed">4</span><div class="frac"><span class="top">1</span><span class="bottom">4</span></div></label>
+                <label class="radio-label"><input type="radio" name="A02" value="❌ FEHLER (1.3)"> 3,25</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">3. Erweitere <div class="frac"><span class="top">3</span><span class="bottom">5</span></div> mit 4:</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="A03" value="✅ RICHTIG (12/20)"> <div class="frac"><span class="top">12</span><span class="bottom">20</span></div></label>
+                <label class="radio-label"><input type="radio" name="A03" value="❌ FEHLER (Nur oben)"> <div class="frac"><span class="top">12</span><span class="bottom">5</span></div></label>
+                <label class="radio-label"><input type="radio" name="A03" value="❌ FEHLER (Addiert)"> <div class="frac"><span class="top">7</span><span class="bottom">9</span></div></label>
+                <label class="radio-label"><input type="radio" name="A03" value="❌ FEHLER (Falsch)"> <div class="frac"><span class="top">3</span><span class="bottom">20</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">4. Kürze vollständig: <div class="frac"><span class="top">18</span><span class="bottom">24</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="A04" value="✅ RICHTIG (3/4)"> <div class="frac"><span class="top">3</span><span class="bottom">4</span></div></label>
+                <label class="radio-label"><input type="radio" name="A04" value="❌ FEHLER (Nicht ganz)"> <div class="frac"><span class="top">9</span><span class="bottom">12</span></div></label>
+                <label class="radio-label"><input type="radio" name="A04" value="❌ FEHLER (6/8)"> <div class="frac"><span class="top">6</span><span class="bottom">8</span></div></label>
+                <label class="radio-label"><input type="radio" name="A04" value="❌ FEHLER (2/3)"> <div class="frac"><span class="top">2</span><span class="bottom">3</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">5. Welche Zahl ist größer?</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="A05" value="✅ RICHTIG (2/3)"> <div class="frac"><span class="top">2</span><span class="bottom">3</span></div></label>
+                <label class="radio-label"><input type="radio" name="A05" value="❌ FEHLER (3/5)"> <div class="frac"><span class="top">3</span><span class="bottom">5</span></div></label>
+                <label class="radio-label"><input type="radio" name="A05" value="❌ FEHLER (Gleich)"> Beide gleich groß</label>
+                <label class="radio-label"><input type="radio" name="A05" value="❌ FEHLER (Weiß nicht)"> Kann man nicht sagen</label>
+            </div>
+        </div>
+
+        <div class="section-title">Block B: Rechnen + & - (5 Fragen)</div>
+
+        <div class="question-block">
+            <span class="q-text">6. Berechne: <div class="frac"><span class="top">2</span><span class="bottom">7</span></div> + <div class="frac"><span class="top">3</span><span class="bottom">7</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="B06" value="✅ RICHTIG (5/7)"> <div class="frac"><span class="top">5</span><span class="bottom">7</span></div></label>
+                <label class="radio-label"><input type="radio" name="B06" value="❌ FEHLER (5/14)"> <div class="frac"><span class="top">5</span><span class="bottom">14</span></div></label>
+                <label class="radio-label"><input type="radio" name="B06" value="❌ FEHLER (6/7)"> <div class="frac"><span class="top">6</span><span class="bottom">7</span></div></label>
+                <label class="radio-label"><input type="radio" name="B06" value="❌ FEHLER (1)"> 1</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">7. Berechne: <div class="frac"><span class="top">1</span><span class="bottom">2</span></div> + <div class="frac"><span class="top">1</span><span class="bottom">4</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="B07" value="✅ RICHTIG (3/4)"> <div class="frac"><span class="top">3</span><span class="bottom">4</span></div></label>
+                <label class="radio-label"><input type="radio" name="B07" value="❌ FEHLER (2/6)"> <div class="frac"><span class="top">2</span><span class="bottom">6</span></div></label>
+                <label class="radio-label"><input type="radio" name="B07" value="❌ FEHLER (1/6)"> <div class="frac"><span class="top">1</span><span class="bottom">6</span></div></label>
+                <label class="radio-label"><input type="radio" name="B07" value="❌ FEHLER (2/4)"> <div class="frac"><span class="top">2</span><span class="bottom">4</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">8. Berechne: 1 - <div class="frac"><span class="top">2</span><span class="bottom">5</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="B08" value="✅ RICHTIG (3/5)"> <div class="frac"><span class="top">3</span><span class="bottom">5</span></div></label>
+                <label class="radio-label"><input type="radio" name="B08" value="❌ FEHLER (2/5)"> <div class="frac"><span class="top">2</span><span class="bottom">5</span></div></label>
+                <label class="radio-label"><input type="radio" name="B08" value="❌ FEHLER (1/5)"> <div class="frac"><span class="top">1</span><span class="bottom">5</span></div></label>
+                <label class="radio-label"><input type="radio" name="B08" value="❌ FEHLER (Minus)"> -<div class="frac"><span class="top">1</span><span class="bottom">5</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">9. Hauptnenner von 3 und 4?</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="B09" value="✅ RICHTIG (12)"> 12</label>
+                <label class="radio-label"><input type="radio" name="B09" value="❌ FEHLER (7)"> 7</label>
+                <label class="radio-label"><input type="radio" name="B09" value="❌ FEHLER (6)"> 6</label>
+                <label class="radio-label"><input type="radio" name="B09" value="❌ FEHLER (24)"> 24 (möglich, aber nicht kleinster)</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">10. Berechne: <div class="frac"><span class="top">5</span><span class="bottom">6</span></div> - <div class="frac"><span class="top">1</span><span class="bottom">3</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="B10" value="✅ RICHTIG (1/2)"> <div class="frac"><span class="top">1</span><span class="bottom">2</span></div> (bzw. 3/6)</label>
+                <label class="radio-label"><input type="radio" name="B10" value="❌ FEHLER (4/3)"> <div class="frac"><span class="top">4</span><span class="bottom">3</span></div></label>
+                <label class="radio-label"><input type="radio" name="B10" value="❌ FEHLER (4/6)"> <div class="frac"><span class="top">4</span><span class="bottom">6</span></div></label>
+                <label class="radio-label"><input type="radio" name="B10" value="❌ FEHLER (4/9)"> <div class="frac"><span class="top">4</span><span class="bottom">9</span></div></label>
+            </div>
+        </div>
+
+        <div class="section-title">Block C: Mal & Geteilt (5 Fragen)</div>
+
+        <div class="question-block">
+            <span class="q-text">11. Berechne: <div class="frac"><span class="top">2</span><span class="bottom">3</span></div> · <div class="frac"><span class="top">4</span><span class="bottom">5</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="C11" value="✅ RICHTIG (8/15)"> <div class="frac"><span class="top">8</span><span class="bottom">15</span></div></label>
+                <label class="radio-label"><input type="radio" name="C11" value="❌ FEHLER (6/8)"> <div class="frac"><span class="top">6</span><span class="bottom">8</span></div></label>
+                <label class="radio-label"><input type="radio" name="C11" value="❌ FEHLER (8/3)"> <div class="frac"><span class="top">8</span><span class="bottom">3</span></div></label>
+                <label class="radio-label"><input type="radio" name="C11" value="❌ FEHLER (24/15)"> <div class="frac"><span class="top">24</span><span class="bottom">15</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">12. Berechne: 3 · <div class="frac"><span class="top">2</span><span class="bottom">7</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="C12" value="✅ RICHTIG (6/7)"> <div class="frac"><span class="top">6</span><span class="bottom">7</span></div></label>
+                <label class="radio-label"><input type="radio" name="C12" value="❌ FEHLER (6/21)"> <div class="frac"><span class="top">6</span><span class="bottom">21</span></div></label>
+                <label class="radio-label"><input type="radio" name="C12" value="❌ FEHLER (5/7)"> <div class="frac"><span class="top">5</span><span class="bottom">7</span></div></label>
+                <label class="radio-label"><input type="radio" name="C12" value="❌ FEHLER (3 2/7)"> <span class="mixed">3</span><div class="frac"><span class="top">2</span><span class="bottom">7</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">13. Was ist der Kehrwert von <div class="frac"><span class="top">3</span><span class="bottom">4</span></div>?</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="C13" value="✅ RICHTIG (4/3)"> <div class="frac"><span class="top">4</span><span class="bottom">3</span></div></label>
+                <label class="radio-label"><input type="radio" name="C13" value="❌ FEHLER (-3/4)"> -<div class="frac"><span class="top">3</span><span class="bottom">4</span></div></label>
+                <label class="radio-label"><input type="radio" name="C13" value="❌ FEHLER (0.75)"> 0,75</label>
+                <label class="radio-label"><input type="radio" name="C13" value="❌ FEHLER (1)"> 1</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">14. Berechne: <div class="frac"><span class="top">1</span><span class="bottom">2</span></div> : <div class="frac"><span class="top">1</span><span class="bottom">3</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="C14" value="✅ RICHTIG (3/2)"> <div class="frac"><span class="top">3</span><span class="bottom">2</span></div></label>
+                <label class="radio-label"><input type="radio" name="C14" value="❌ FEHLER (1/6)"> <div class="frac"><span class="top">1</span><span class="bottom">6</span></div></label>
+                <label class="radio-label"><input type="radio" name="C14" value="❌ FEHLER (1)"> 1</label>
+                <label class="radio-label"><input type="radio" name="C14" value="❌ FEHLER (2/3)"> <div class="frac"><span class="top">2</span><span class="bottom">3</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">15. Berechne: <div class="frac"><span class="top">3</span><span class="bottom">4</span></div> von 20€</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="C15" value="✅ RICHTIG (15)"> 15€</label>
+                <label class="radio-label"><input type="radio" name="C15" value="❌ FEHLER (5)"> 5€</label>
+                <label class="radio-label"><input type="radio" name="C15" value="❌ FEHLER (12)"> 12€</label>
+                <label class="radio-label"><input type="radio" name="C15" value="❌ FEHLER (10)"> 10€</label>
+            </div>
+        </div>
+
+        <div class="section-title">Block D: Dezimalzahlen (5 Fragen)</div>
+
+        <div class="question-block">
+            <span class="q-text">16. Schreibe 0,5 als Bruch:</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="D16" value="✅ RICHTIG (1/2)"> <div class="frac"><span class="top">1</span><span class="bottom">2</span></div></label>
+                <label class="radio-label"><input type="radio" name="D16" value="❌ FEHLER (1/5)"> <div class="frac"><span class="top">1</span><span class="bottom">5</span></div></label>
+                <label class="radio-label"><input type="radio" name="D16" value="❌ FEHLER (5/100)"> <div class="frac"><span class="top">5</span><span class="bottom">100</span></div></label>
+                <label class="radio-label"><input type="radio" name="D16" value="❌ FEHLER (5/1)"> <div class="frac"><span class="top">5</span><span class="bottom">1</span></div></label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">17. Schreibe <div class="frac"><span class="top">1</span><span class="bottom">4</span></div> als Kommazahl:</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="D17" value="✅ RICHTIG (0.25)"> 0,25</label>
+                <label class="radio-label"><input type="radio" name="D17" value="❌ FEHLER (0.4)"> 0,4</label>
+                <label class="radio-label"><input type="radio" name="D17" value="❌ FEHLER (1.4)"> 1,4</label>
+                <label class="radio-label"><input type="radio" name="D17" value="❌ FEHLER (0.14)"> 0,14</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">18. Berechne: 0,3 + 0,07</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="D18" value="✅ RICHTIG (0.37)"> 0,37</label>
+                <label class="radio-label"><input type="radio" name="D18" value="❌ FEHLER (0.10)"> 0,10</label>
+                <label class="radio-label"><input type="radio" name="D18" value="❌ FEHLER (0.307)"> 0,307</label>
+                <label class="radio-label"><input type="radio" name="D18" value="❌ FEHLER (1)"> 1,0</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">19. Berechne: 2 · 0,4</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="D19" value="✅ RICHTIG (0.8)"> 0,8</label>
+                <label class="radio-label"><input type="radio" name="D19" value="❌ FEHLER (0.6)"> 0,6</label>
+                <label class="radio-label"><input type="radio" name="D19" value="❌ FEHLER (2.4)"> 2,4</label>
+                <label class="radio-label"><input type="radio" name="D19" value="❌ FEHLER (0.2)"> 0,2</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">20. Was ist größer? 0,1 oder 0,09?</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="D20" value="✅ RICHTIG (0.1)"> 0,1</label>
+                <label class="radio-label"><input type="radio" name="D20" value="❌ FEHLER (0.09)"> 0,09</label>
+                <label class="radio-label"><input type="radio" name="D20" value="❌ FEHLER (Gleich)"> Gleich groß</label>
+                <label class="radio-label"><input type="radio" name="D20" value="❌ FEHLER (Weiß nicht)"> Weiß nicht</label>
+            </div>
+        </div>
+
+        <div class="section-title">Block E: Finale (5 Fragen)</div>
+
+        <div class="question-block">
+            <span class="q-text">21. Term: 2 + 3 · 4 = ?</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="E21" value="✅ RICHTIG (14)"> 14 (Punkt vor Strich)</label>
+                <label class="radio-label"><input type="radio" name="E21" value="❌ FEHLER (20)"> 20 (Von links nach rechts)</label>
+                <label class="radio-label"><input type="radio" name="E21" value="❌ FEHLER (9)"> 9</label>
+                <label class="radio-label"><input type="radio" name="E21" value="❌ FEHLER (24)"> 24</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">22. <div class="frac"><span class="top">1</span><span class="bottom">2</span></div> von einer halben Pizza ist...</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="E22" value="✅ RICHTIG (1/4)"> ein Viertel</label>
+                <label class="radio-label"><input type="radio" name="E22" value="❌ FEHLER (1)"> eine Ganze</label>
+                <label class="radio-label"><input type="radio" name="E22" value="❌ FEHLER (1/3)"> ein Drittel</label>
+                <label class="radio-label"><input type="radio" name="E22" value="❌ FEHLER (3/4)"> drei Viertel</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">23. Vereinfache: 4x + 2x</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="E23" value="✅ RICHTIG (6x)"> 6x</label>
+                <label class="radio-label"><input type="radio" name="E23" value="❌ FEHLER (6x²)"> 6x²</label>
+                <label class="radio-label"><input type="radio" name="E23" value="❌ FEHLER (8x)"> 8x</label>
+                <label class="radio-label"><input type="radio" name="E23" value="❌ FEHLER (6)"> 6</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">24. Welche Zahl fehlt? <div class="frac"><span class="top">2</span><span class="bottom">3</span></div> = <div class="frac"><span class="top">?</span><span class="bottom">9</span></div></span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="E24" value="✅ RICHTIG (6)"> 6</label>
+                <label class="radio-label"><input type="radio" name="E24" value="❌ FEHLER (4)"> 4</label>
+                <label class="radio-label"><input type="radio" name="E24" value="❌ FEHLER (5)"> 5</label>
+                <label class="radio-label"><input type="radio" name="E24" value="❌ FEHLER (8)"> 8</label>
+            </div>
+        </div>
+
+        <div class="question-block">
+            <span class="q-text">25. Wenn 3 Brötchen 1,50€ kosten, was kosten 5?</span>
+            <div class="options-grid">
+                <label class="radio-label"><input type="radio" name="E25" value="✅ RICHTIG (2.50)"> 2,50€</label>
+                <label class="radio-label"><input type="radio" name="E25" value="❌ FEHLER (2.00)"> 2,00€</label>
+                <label class="radio-label"><input type="radio" name="E25" value="❌ FEHLER (3.00)"> 3,00€</label>
+                <label class="radio-label"><input type="radio" name="E25" value="❌ FEHLER (4.50)"> 4,50€</label>
+            </div>
+        </div>
 
 
         <button type="submit" id="submitBtn">DATEN SENDEN 🚀</button>
@@ -233,5 +479,3 @@
 
 </body>
 </html>
-
-
