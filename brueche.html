@@ -448,7 +448,7 @@
     const startTime = new Date();
 
     document.getElementById('quizForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // Stoppt den Standard-Browser-Submit!
+        e.preventDefault(); 
 
         const btn = document.getElementById('submitBtn');
         btn.innerText = "Sende Paket...";
@@ -475,7 +475,10 @@
         });
         
         const total = 25; 
+        // WICHTIG: Hier berechnen wir die reine Prozentzahl für die URL
         const scorePercentage = Math.round((correct / total) * 100);
+        
+        // String für n8n (Datenbank)
         const scoreString = scorePercentage + "% (" + correct + "/" + total + ")";
 
         // Hidden Inputs füllen
@@ -483,8 +486,8 @@
         document.getElementById('durationInput').value = durationString;
         document.getElementById('rawInput').value = details;
 
-        // --- DER FIX: Fire & Forget via JS fetch ---
-        const formData = new FormData(this); // Das Formular als Datenpaket
+        // --- FETCH SENDEN ---
+        const formData = new FormData(this); 
         const webhookURL = "https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba";
 
         fetch(webhookURL, {
@@ -492,18 +495,17 @@
             body: formData
         })
         .then(response => {
-            console.log("Daten erfolgreich an n8n gesendet.");
+            console.log("Daten an n8n gesendet.");
         })
         .catch(error => {
-            console.error("Fehler beim Senden (egal, wir leiten trotzdem weiter):", error);
+            console.error("Fehler (ignoriert):", error);
         })
         .finally(() => {
-            // Egal was passiert (Erfolg oder Fehler bei n8n):
-            // Wir leiten SOFORT weiter. Der User merkt nichts vom Backend.
-            // Wir übergeben nur die Prozentzahl, das reicht für die Danke-Seite.
-            window.location.href = `danke.html?score=${scorePercentage}`;
+            // WICHTIG: Wir leiten weiter mit PROZENT und ZEIT
+            window.location.href = `danke.html?score=${scorePercentage}&time=${encodeURIComponent(durationString)}`;
         });
     });
 </script>
 </body>
 </html>
+
