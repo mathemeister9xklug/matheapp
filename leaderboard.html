@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe-Liga | Ranking</title>
+    <meta name="theme-color" content="#121212">
+    <style>
+        :root { --bg: #121212; --card: #1e1e1e; --accent: #e67e22; --text: #fff; --gold: #f1c40f; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 600px; margin: 0 auto; }
+        
+        h1 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; font-size: 0.9em; }
+
+        /* TABS */
+        .tabs { display: flex; justify-content: center; margin-bottom: 20px; background: #222; border-radius: 50px; padding: 5px; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 40px; color: #aaa; transition: 0.3s; font-weight: bold; }
+        .tab.active { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4); }
+
+        /* LISTE */
+        .ranking-list { list-style: none; padding: 0; }
+        .rank-card { 
+            background: var(--card); padding: 15px 20px; border-radius: 12px; 
+            margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+            border: 1px solid #333; transition: transform 0.2s;
+        }
+        .rank-card:hover { transform: scale(1.02); border-color: var(--accent); }
+        
+        /* RANK STYLES */
+        .rank-num { font-size: 1.5em; font-weight: bold; width: 40px; color: #555; }
+        .rank-1 .rank-num { color: var(--gold); text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+        .rank-2 .rank-num { color: #bdc3c7; }
+        .rank-3 .rank-num { color: #cd7f32; }
+
+        .info { flex: 1; text-align: left; padding-left: 10px; }
+        .name { font-weight: bold; display: block; font-size: 1.1em; }
+        .school { font-size: 0.8em; color: #888; display: block; }
+        
+        .points { font-weight: bold; color: var(--accent); font-size: 1.2em; text-align: right; }
+        .points small { display: block; font-size: 0.5em; color: #aaa; font-weight: normal; }
+
+        .loading { text-align: center; color: #666; margin-top: 50px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        .cta-box { margin-top: 40px; text-align: center; padding: 20px; background: linear-gradient(45deg, #222, #333); border-radius: 15px; border: 1px dashed #555; }
+        .btn { display: inline-block; margin-top: 10px; background: var(--text); color: black; padding: 10px 25px; text-decoration: none; border-radius: 50px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>Global Ranking</h1>
+    <div class="subtitle">Season 1 • <span style="color:var(--accent)">Live Update</span></div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('school')">🏫 Schulen</div>
+        <div class="tab" onclick="switchTab('pilot')">👤 Piloten</div>
+    </div>
+
+    <div id="rankingContainer">
+        <div class="loading">Empfange Satelliten-Daten...</div>
+    </div>
+
+    <div class="cta-box">
+        <h3>Deine Schule braucht dich!</h3>
+        <p style="color:#aaa; font-size:0.9em;">Jeder Punkt zählt für den Season-Sieg.</p>
+        <a href="index.html" class="btn">Mission starten 🚀</a>
+    </div>
+
+    <script>
+        // DUMMY DATEN (Später kommen die live aus n8n via fetch)
+        const schoolData = [
+            { name: "Goethe-Gymnasium", points: 12450, members: 42 },
+            { name: "Leibniz-Realschule", points: 8900, members: 28 },
+            { name: "Stadtteilschule Mitte", points: 5320, members: 15 },
+            { name: "Andere", points: 1200, members: 5 }
+        ];
+
+        const pilotData = [
+            { name: "MasterMind_99", school: "Goethe-Gymnasium", points: 1500 },
+            { name: "Mathe_Killer", school: "Leibniz-Realschule", points: 1350 },
+            { name: "Jonas_729", school: "Goethe-Gymnasium", points: 1100 },
+            { name: "Sarah.X", school: "Stadtteilschule", points: 980 },
+            { name: "Ghost", school: "Unbekannt", points: 500 }
+        ];
+
+        const container = document.getElementById('rankingContainer');
+        let currentTab = 'school';
+
+        function render(type) {
+            container.innerHTML = "";
+            let data = (type === 'school') ? schoolData : pilotData;
+            
+            // Sortieren (High to Low)
+            data.sort((a, b) => b.points - a.points);
+
+            const ul = document.createElement('ul');
+            ul.className = 'ranking-list';
+
+            data.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = `rank-card rank-${index + 1}`;
+                
+                let icon = "🏫";
+                if(type === 'pilot') icon = "👤";
+                if(index === 0) icon = "🏆";
+
+                let subline = (type === 'school') ? `${item.members} Piloten aktiv` : item.school;
+
+                li.innerHTML = `
+                    <div class="rank-num">${index + 1}.</div>
+                    <div class="info">
+                        <span class="name">${item.name}</span>
+                        <span class="school">${subline}</span>
+                    </div>
+                    <div class="points">
+                        ${item.points}
+                        <small>PTS</small>
+                    </div>
+                `;
+                ul.appendChild(li);
+            });
+
+            container.appendChild(ul);
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            currentTab = tab;
+            render(tab);
+        }
+
+        // Initiale Simulation einer Ladezeit für "Realismus"
+        setTimeout(() => {
+            render('school');
+        }, 800);
+
+    </script>
+</body>
+</html>
