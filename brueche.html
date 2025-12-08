@@ -105,7 +105,7 @@
         }
         button:hover { background: #2ecc71; transform: scale(1.02); }
         button:active { transform: scale(0.98); }
-        button:disabled { background: #555; box-shadow: none; cursor: wait; }
+        button:disabled { background: #555; box-shadow: none; cursor: wait; opacity: 0.7; }
 
     </style>
 </head>
@@ -124,7 +124,7 @@
         <div class="subtitle">Diagnose-Protokoll v1.2</div>
     </header>
 
-    <form id="quizForm" action="https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba" method="POST">
+    <form id="quizForm">
         
         <input type="hidden" name="00_SCORE" id="scoreInput" value="">
         <input type="hidden" name="00_DAUER" id="durationInput" value="">
@@ -153,7 +153,6 @@
         </div>
 
         <div class="section-title">Block A: Gemischte Zahlen (5 Fragen)</div>
-
         <div class="question-block">
             <span class="q-text">1. Schreibe als unechten Bruch: <span class="mixed">2</span><div class="frac"><span class="top">1</span><span class="bottom">3</span></div></span>
             <div class="options-grid">
@@ -205,7 +204,6 @@
         </div>
 
         <div class="section-title">Block B: Rechnen + & - (5 Fragen)</div>
-
         <div class="question-block">
             <span class="q-text">6. Berechne: <div class="frac"><span class="top">2</span><span class="bottom">7</span></div> + <div class="frac"><span class="top">3</span><span class="bottom">7</span></div></span>
             <div class="options-grid">
@@ -257,7 +255,6 @@
         </div>
 
         <div class="section-title">Block C: Mal & Geteilt (5 Fragen)</div>
-
         <div class="question-block">
             <span class="q-text">11. Berechne: <div class="frac"><span class="top">2</span><span class="bottom">3</span></div> · <div class="frac"><span class="top">4</span><span class="bottom">5</span></div></span>
             <div class="options-grid">
@@ -309,7 +306,6 @@
         </div>
 
         <div class="section-title">Block D: Dezimalzahlen (5 Fragen)</div>
-
         <div class="question-block">
             <span class="q-text">16. Schreibe 0,5 als Bruch:</span>
             <div class="options-grid">
@@ -361,7 +357,6 @@
         </div>
 
         <div class="section-title">Block E: Finale (5 Fragen)</div>
-
         <div class="question-block">
             <span class="q-text">21. Term: 2 + 3 · 4 = ?</span>
             <div class="options-grid">
@@ -419,34 +414,25 @@
 </div>
 
 <script>
-    // --- GEDÄCHTNIS (NAME & SCHULE) ---
+    // --- 1. GEDÄCHTNIS (NAME & SCHULE) ---
     const urlParams = new URLSearchParams(window.location.search);
-    
-    // 1. Daten laden
     let user = urlParams.get('id') || localStorage.getItem('matheLigaUser');
     let school = localStorage.getItem('matheLigaSchool');
 
-    // 2. Anwenden
+    // UI Updates
     if (user) {
         localStorage.setItem('matheLigaUser', user);
-        
-        // Name füllen & verstecken
         if(document.getElementById('nameInput')) document.getElementById('nameInput').value = user;
         if(document.getElementById('nameInputContainer')) document.getElementById('nameInputContainer').style.display = 'none';
         
-        // Begrüßung
         if(document.getElementById('displayName')) document.getElementById('displayName').innerText = user;
         if(document.getElementById('welcomeMessage')) document.getElementById('welcomeMessage').style.display = 'block';
     }
 
     if (school) {
-        // Schule füllen
         const schoolField = document.getElementById('schoolInput');
         if (schoolField) {
             schoolField.value = school;
-            // Optional: Das Feld verstecken oder ausgrauen, damit man nicht immer klickt
-            // schoolField.style.background = "#333"; 
-            // schoolField.style.color = "#777";
         }
     }
 
@@ -458,27 +444,23 @@
         }
     }
 
-    // --- QUIZ LOGIK ---
+    // --- 2. QUIZ LOGIK & SENDEN ---
     const startTime = new Date();
 
     document.getElementById('quizForm').addEventListener('submit', function(e) {
-        e.preventDefault(); 
+        e.preventDefault(); // Stoppt den Standard-Browser-Submit!
+
         const btn = document.getElementById('submitBtn');
         btn.innerText = "Sende Paket...";
         btn.disabled = true;
         
+        // Daten sammeln
         const name = document.getElementById('nameInput').value;
-        const currentSchool = document.getElementById('schoolInput').value; // Schule holen
+        const currentSchool = document.getElementById('schoolInput').value;
+        if(currentSchool) localStorage.setItem('matheLigaSchool', currentSchool);
+        if(!user && name) localStorage.setItem('matheLigaUser', name);
 
-        // --- SCHULE SPEICHERN ---
-        if(currentSchool) {
-            localStorage.setItem('matheLigaSchool', currentSchool);
-        }
-        if(!user && name) {
-            localStorage.setItem('matheLigaUser', name);
-        }
-
-        // --- RESTLICHE BERECHNUNG ---
+        // Score berechnen
         const endTime = new Date();
         const seconds = Math.floor((endTime - startTime) / 1000);
         const durationString = Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
@@ -493,15 +475,35 @@
         });
         
         const total = 25; 
-        const scoreString = Math.round((correct / total) * 100) + "% (" + correct + "/" + total + ")";
+        const scorePercentage = Math.round((correct / total) * 100);
+        const scoreString = scorePercentage + "% (" + correct + "/" + total + ")";
 
+        // Hidden Inputs füllen
         document.getElementById('scoreInput').value = scoreString;
         document.getElementById('durationInput').value = durationString;
         document.getElementById('rawInput').value = details;
 
-        e.target.submit();
+        // --- DER FIX: Fire & Forget via JS fetch ---
+        const formData = new FormData(this); // Das Formular als Datenpaket
+        const webhookURL = "https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba";
+
+        fetch(webhookURL, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            console.log("Daten erfolgreich an n8n gesendet.");
+        })
+        .catch(error => {
+            console.error("Fehler beim Senden (egal, wir leiten trotzdem weiter):", error);
+        })
+        .finally(() => {
+            // Egal was passiert (Erfolg oder Fehler bei n8n):
+            // Wir leiten SOFORT weiter. Der User merkt nichts vom Backend.
+            // Wir übergeben nur die Prozentzahl, das reicht für die Danke-Seite.
+            window.location.href = `danke.html?score=${scorePercentage}`;
+        });
     });
 </script>
 </body>
 </html>
-
