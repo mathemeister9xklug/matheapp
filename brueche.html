@@ -419,21 +419,24 @@
     let user = urlParams.get('id') || localStorage.getItem('matheLigaUser');
     let school = localStorage.getItem('matheLigaSchool');
 
-    // UI Updates
+    // UI Updates beim Laden
     if (user) {
         localStorage.setItem('matheLigaUser', user);
-        if(document.getElementById('nameInput')) document.getElementById('nameInput').value = user;
-        if(document.getElementById('nameInputContainer')) document.getElementById('nameInputContainer').style.display = 'none';
-        
-        if(document.getElementById('displayName')) document.getElementById('displayName').innerText = user;
-        if(document.getElementById('welcomeMessage')) document.getElementById('welcomeMessage').style.display = 'block';
+        // Prüfen ob Elemente existieren, um Fehler zu vermeiden
+        const nameInput = document.getElementById('nameInput');
+        const nameContainer = document.getElementById('nameInputContainer');
+        const displayName = document.getElementById('displayName');
+        const welcomeMsg = document.getElementById('welcomeMessage');
+
+        if(nameInput) nameInput.value = user;
+        if(nameContainer) nameContainer.style.display = 'none';
+        if(displayName) displayName.innerText = user;
+        if(welcomeMsg) welcomeMsg.style.display = 'block';
     }
 
     if (school) {
         const schoolField = document.getElementById('schoolInput');
-        if (schoolField) {
-            schoolField.value = school;
-        }
+        if (schoolField) schoolField.value = school;
     }
 
     function resetUser() {
@@ -444,15 +447,17 @@
         }
     }
 
-    // --- 2. QUIZ LOGIK & SENDEN ---
+    // --- 2. QUIZ LOGIK & SENDEN (ROBUST) ---
     const startTime = new Date();
 
-    document.getElementById('quizForm').addEventListener('submit', function(e) {
-        e.preventDefault(); 
+    document.getElementById('quizForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Standard-Submit verhindern!
 
         const btn = document.getElementById('submitBtn');
+        const originalText = btn.innerText;
         btn.innerText = "Sende Paket...";
         btn.disabled = true;
+        btn.style.opacity = "0.7";
         
         // Daten sammeln
         const name = document.getElementById('nameInput').value;
@@ -475,10 +480,7 @@
         });
         
         const total = 25; 
-        // WICHTIG: Hier berechnen wir die reine Prozentzahl für die URL
         const scorePercentage = Math.round((correct / total) * 100);
-        
-        // String für n8n (Datenbank)
         const scoreString = scorePercentage + "% (" + correct + "/" + total + ")";
 
         // Hidden Inputs füllen
@@ -488,24 +490,34 @@
 
         // --- FETCH SENDEN ---
         const formData = new FormData(this); 
+        // HINWEIS: Hier deine korrekte n8n Webhook URL eintragen!
         const webhookURL = "https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba";
 
-        fetch(webhookURL, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            console.log("Daten an n8n gesendet.");
-        })
-        .catch(error => {
-            console.error("Fehler (ignoriert):", error);
-        })
-        .finally(() => {
-            // WICHTIG: Wir leiten weiter mit PROZENT und ZEIT
-            window.location.href = `danke.html?score=${scorePercentage}&time=${encodeURIComponent(durationString)}`;
-        });
+        try {
+            // Wir warten maximal 3 Sekunden auf den Server, sonst leiten wir trotzdem weiter (Fail-Safe)
+            const fetchPromise = fetch(webhookURL, {
+                method: 'POST',
+                body: formData
+            });
+
+            // Optional: Timeout Logik, falls n8n hängt
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Timeout')), 3000)
+            );
+
+            await Promise.race([fetchPromise, timeoutPromise]);
+            console.log("Daten erfolgreich übertragen.");
+
+        } catch (error) {
+            console.warn("Warnung: Datenversand dauerte zu lange oder schlug fehl. Leite trotzdem weiter.", error);
+        }
+
+        // --- WEITERLEITUNG ---
+        // Egal ob Fetch geklappt hat oder nicht, der User darf nicht steckenbleiben.
+        window.location.href = `danke.html?score=${scorePercentage}&time=${encodeURIComponent(durationString)}`;
     });
 </script>
 </body>
 </html>
+
 
