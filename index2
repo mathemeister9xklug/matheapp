@@ -1,1 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe-Liga: Dashboard</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#121212">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+    <style>
+        /* --- DESIGN GRUNDLAGEN --- */
+        :root {
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warn: #e67e22;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; padding-bottom: 80px; }
+        .container { max-width: 600px; margin: 0 auto; }
+
+        /* HEADER */
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { margin: 0; font-size: 2em; letter-spacing: 1px; text-transform: uppercase; background: -webkit-linear-gradient(#eee, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .user-card { background: linear-gradient(135deg, #333, #222); padding: 15px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .user-name { font-weight: bold; font-size: 1.1em; color: #fff; }
+        .user-status { font-size: 0.8em; background: #444; padding: 4px 8px; border-radius: 4px; color: #ccc; }
+
+        /* KAMPAGNEN-STRUKTUR */
+        .campaign-header { margin-top: 40px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .campaign-title { font-size: 1.1em; font-weight: bold; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .campaign-progress { font-size: 0.8em; color: var(--text-muted); }
+
+        .path-container { position: relative; padding-left: 20px; border-left: 2px dashed #444; margin-left: 10px; }
+        
+        .card { 
+            background: var(--card-bg); 
+            padding: 15px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none; 
+            color: white; 
+            margin-bottom: 15px;
+            position: relative; 
+            transition: transform 0.2s;
+            border: 1px solid #333;
+        }
+
+        /* Verbindungs-Linien Punkte */
+        .card::before {
+            content: '';
+            position: absolute;
+            left: -26px; /* Position auf der gestrichelten Linie */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background: #444;
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+        }
+
+        /* STATUS STYLES */
+        .card.done { border-left: 4px solid var(--success); }
+        .card.done::before { background: var(--success); }
+        
+        .card.active { border-left: 4px solid var(--accent); background: #252525; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2); }
+        .card.active:hover { transform: scale(1.02); }
+        .card.active::before { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+        .card.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        
+        .icon { font-size: 1.5em; margin-right: 15px; width: 30px; text-align: center; }
+        .card-content { flex: 1; }
+        .card-title { font-weight: bold; font-size: 1em; display: block; }
+        .card-meta { font-size: 0.8em; color: var(--text-muted); margin-top: 2px; display: block; }
+        
+        .badge { font-size: 0.7em; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-left: 10px; text-transform: uppercase; }
+        .badge-diag { background: #555; color: #fff; }
+        .badge-game { background: var(--warn); color: #000; }
+
+        /* FOOTER */
+        .footer { text-align: center; margin-top: 50px; font-size: 0.8em; color: #555; }
+        .reset-link { color: #555; text-decoration: underline; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Mathe Liga 🏆</h1>
+        <div class="user-card" id="userCard" style="display:none;">
+            <div>
+                <span style="display:block; font-size:0.8em; color:#888;">Pilot:</span>
+                <span class="user-name" id="userNameDisplay">Gast</span>
+            </div>
+            <span class="user-status">Rookie</span>
+        </div>
+    </header>
+
+    <div class="campaign-header">
+        <span class="campaign-title">🍕 Mission: Brüche</span>
+        <span class="campaign-progress">Level 1-3</span>
+    </div>
+
+    <div class="path-container">
+        
+        <a href="brueche.html" class="card done">
+            <span class="icon">🩺</span>
+            <div class="card-content">
+                <span class="card-title">Check-Up</span>
+                <span class="card-meta">Diagnose • 25 Fragen</span>
+            </div>
+            <span class="badge badge-diag">Pflicht</span>
+        </a>
+
+        <a href="speed_kuerzen.html" class="card active">
+            <span class="icon">⚡</span>
+            <div class="card-content">
+                <span class="card-title">Speed-Kürzen</span>
+                <span class="card-meta">Time Attack • 60 Sek</span>
+            </div>
+            <span class="badge badge-game">Game</span>
+        </a>
+
+        <div class="card locked">
+            <span class="icon">👑</span>
+            <div class="card-content">
+                <span class="card-title">Der Nenner-Killer</span>
+                <span class="card-meta">Boss Battle • Schwer</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+
+    </div>
+
+    <div class="campaign-header" style="opacity:0.5; margin-top:50px;">
+        <span class="campaign-title">📐 Mission: Geometrie</span>
+        <span class="campaign-progress">Bald verfügbar</span>
+    </div>
+    <div class="path-container" style="opacity:0.5;">
+        <div class="card locked">
+            <span class="icon">📐</span>
+            <div class="card-content">
+                <span class="card-title">Winkel-Jagd</span>
+                <span class="card-meta">Training</span>
+            </div>
+            <span class="lock-icon">🔒</span>
+        </div>
+    </div>
+
+
+    <div class="footer">
+        Mathe-Liga App v1.2<br>
+        <span class="reset-link" onclick="logout()">Nicht du? Ausloggen</span>
+    </div>
+
+</div>
+
+<script>
+    // USER LOGIK (Wie gehabt)
+    const user = localStorage.getItem('matheLigaUser');
+    
+    if (user) {
+        document.getElementById('userNameDisplay').innerText = user;
+        document.getElementById('userCard').style.display = 'flex';
+        
+        // Links personalisieren (Gedächtnis-Hilfe)
+        const links = document.querySelectorAll('a[href]');
+        links.forEach(link => {
+            if(link.href.includes('.html')) {
+                link.href = link.getAttribute('href') + "?id=" + user;
+            }
+        });
+    }
+
+    function logout() {
+        if(confirm("Ausloggen?")) {
+            localStorage.removeItem('matheLigaUser');
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
