@@ -66,13 +66,11 @@
             border: 1px solid #333;
         }
 
-        /* Verbindungs-Linien Punkte */
         .card::before {
             content: ''; position: absolute; left: -26px; top: 50%; transform: translateY(-50%);
             width: 10px; height: 10px; background: #444; border-radius: 50%; border: 2px solid var(--bg);
         }
 
-        /* STATUS STYLES */
         .card.done { border-left: 4px solid var(--success); }
         .card.done::before { background: var(--success); }
         
@@ -95,7 +93,7 @@
         .footer { text-align: center; margin-top: 50px; font-size: 0.8em; color: #555; }
         .reset-link { color: #555; text-decoration: underline; cursor: pointer; }
 
-        /* --- GATEKEEPER OVERLAY --- */
+        /* --- GATEKEEPER OVERLAY (FIXED) --- */
         #gatekeeper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(10, 10, 15, 0.98); z-index: 9999;
@@ -103,7 +101,9 @@
             backdrop-filter: blur(10px);
             transition: opacity 0.5s;
         }
-        #gatekeeper.hidden { opacity: 0; pointer-events: none; }
+        
+        /* NUCLEAR OPTION: Wenn hidden, dann wirklich weg */
+        #gatekeeper.hidden { opacity: 0; pointer-events: none; display: none !important; }
 
         .gk-content { width: 90%; max-width: 400px; text-align: center; }
         .gk-title { font-size: 2em; margin-bottom: 20px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
@@ -195,7 +195,7 @@
             <span class="icon">⚡</span>
             <div class="card-content">
                 <span class="card-title">Speed-Kürzen</span>
-                <span class="card-meta">Time Attack • 60 Sek</span>
+                <span class="card-meta">Time Attack • 20 Sek</span>
             </div>
             <span class="badge badge-game">Game</span>
         </a>
@@ -259,16 +259,15 @@
         const storedUser = localStorage.getItem('matheLigaUser');
         const storedSchool = localStorage.getItem('matheLigaSchool');
 
-        // 1. Check: User vorhanden?
+        // Logic Check: Haben wir einen User?
         if (storedUser && storedSchool) {
-            // Zugang gewähren
+            // JA -> Sofort Dashboard zeigen
             unlockDashboard(storedUser);
         } else {
-            // Gatekeeper aktivieren
+            // NEIN -> Gatekeeper aktivieren
             initGatekeeper();
         }
 
-        // Links personalisieren (auch wenn Gatekeeper noch aktiv ist, für später)
         updateLinks();
     });
 
@@ -276,7 +275,7 @@
         const gk = document.getElementById('gatekeeper');
         gk.classList.remove('hidden'); // Sicherstellen, dass sichtbar
         
-        generateNick(); // Ersten Namen würfeln
+        generateNick(); // Namen würfeln
 
         // Magic Link Check (?school=...)
         const urlParams = new URLSearchParams(window.location.search);
@@ -285,7 +284,6 @@
         if (magicSchool) {
             const schoolInput = document.getElementById('schoolInput');
             schoolInput.value = magicSchool;
-            // Optional: Visuelles Feedback, dass Link funktioniert hat
             schoolInput.style.borderColor = "#27ae60"; 
             schoolInput.style.backgroundColor = "rgba(39, 174, 96, 0.1)";
         }
@@ -311,23 +309,31 @@
         localStorage.setItem('matheLigaUser', currentNick);
         localStorage.setItem('matheLigaSchool', schoolVal);
 
-        // UI Update
-        document.getElementById('gatekeeper').classList.add('hidden');
-        unlockDashboard(currentNick);
-        updateLinks();
+        // UI Update (mit kleiner Verzögerung für Effekt)
+        const gk = document.getElementById('gatekeeper');
+        gk.style.opacity = '0'; // Fade out
+        setTimeout(() => {
+            gk.classList.add('hidden'); // Wegnehmen
+            unlockDashboard(currentNick);
+            updateLinks();
+        }, 500);
     }
 
     function unlockDashboard(user) {
+        // Overlay hart entfernen (Sicherheitsnetz)
+        const gk = document.getElementById('gatekeeper');
+        gk.classList.add('hidden'); 
+        
+        // User Info anzeigen
         document.getElementById('userNameDisplay').innerText = user;
         document.getElementById('userCard').style.display = 'flex';
-        document.getElementById('gatekeeper').classList.add('hidden');
     }
 
     function updateLinks() {
         const user = localStorage.getItem('matheLigaUser');
         if (!user) return;
 
-        // An alle Links die ID hängen (für simples Tracking im Query String)
+        // An alle Links die ID hängen
         const links = document.querySelectorAll('a[href]');
         links.forEach(link => {
             if(link.href.includes('.html') && !link.href.includes('id=')) {
