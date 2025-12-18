@@ -139,7 +139,7 @@
         
         <p id="feedbackText" style="color:#aaa; font-size:0.9em;">Synchronisiere Datenbank...</p>
         
-        <form id="scoreForm" action="https://mathemeister.app.n8n.cloud/webhook-test/8b5a6681-d702-428b-9325-c9b803e69fba" method="POST">
+        <form id="scoreForm" action="https://mathemeister9xklug.n8n.cloud/webhook-test/8b5a6681-d702-428b-9325-c9b803e69fba" method="POST">
             <input type="hidden" name="01_name" id="nameInput">
             <input type="hidden" name="Schule" id="schoolInput">
             <input type="hidden" name="00_SCORE" id="scoreInput"> 
@@ -152,17 +152,21 @@
     <script>
         // --- GAME CONFIG & STATE ---
         let score = 0;
-        let timeLeft = 20; // 20 Sekunden Limit
+        let timeLeft = 20; 
         let timerInterval;
         let currentIsKuerzbar = false;
         
-        // HOT STREAK LOGIC
         let streak = 0;
         let multiplier = 1;
         
-        // Stats for Logging
         let totalQuestions = 0;
         let correctAnswers = 0;
+
+        // --- HELPER: ggT (Größter Gemeinsamer Teiler) ---
+        // Das ist der mathematische Fix!
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
 
         // --- INIT ---
         const user = localStorage.getItem('matheLigaUser') || "Unknown";
@@ -175,7 +179,7 @@
             score = 0;
             streak = 0;
             multiplier = 1;
-            timeLeft = 20; // Reset Timer auf 20s
+            timeLeft = 20;
             updateHUD();
             
             nextQuestion();
@@ -184,36 +188,42 @@
                 timeLeft--;
                 const tDisp = document.getElementById('timeDisplay');
                 tDisp.innerText = timeLeft;
-                
-                if(timeLeft <= 5) tDisp.classList.add('critical'); // Panik ab 5s
-                
+                if(timeLeft <= 5) tDisp.classList.add('critical');
                 if(timeLeft <= 0) endGame();
             }, 1000);
         }
 
         function nextQuestion() {
-            // Logik: 50/50 Chance
+            // 50% Chance
             currentIsKuerzbar = Math.random() < 0.5;
             let top, bot;
 
             if (currentIsKuerzbar) {
-                // Generiere Kürzbar
-                const factor = Math.floor(Math.random() * 8) + 2; // Faktor 2-9
-                const baseTop = Math.floor(Math.random() * 9) + 1;
-                const baseBot = baseTop + Math.floor(Math.random() * 9) + 1; // Immer echter Bruch oder 1
+                // FALL 1: Kürzbar
+                // Wir generieren Basis (ggT=1) und multiplizieren
+                let baseTop = Math.floor(Math.random() * 9) + 1;
+                let baseBot = baseTop + Math.floor(Math.random() * 9) + 1;
+                
+                // Sicherstellen, dass Basis unkürzbar ist (z.B. nicht 2/4 als Basis nehmen)
+                while (gcd(baseTop, baseBot) > 1) {
+                    baseBot++; // Einfach hochzählen bis es passt
+                }
+
+                const factor = Math.floor(Math.random() * 5) + 2; // Faktor 2-6
                 top = baseTop * factor;
                 bot = baseBot * factor;
             } else {
-                // Generiere Nicht-Kürzbar (Primzahlen nutzen)
-                const primes = [2,3,5,7,11,13,17,19,23];
-                top = primes[Math.floor(Math.random() * primes.length)];
-                bot = top + primes[Math.floor(Math.random() * primes.length)];
+                // FALL 2: NICHT Kürzbar
+                // Wir würfeln solange, bis der ggT wirklich 1 ist.
+                do {
+                    top = Math.floor(Math.random() * 20) + 2;
+                    bot = top + Math.floor(Math.random() * 20) + 1;
+                } while (gcd(top, bot) > 1);
             }
 
             document.getElementById('numTop').innerText = top;
             document.getElementById('numBot').innerText = bot;
             
-            // Animation Reset
             const card = document.getElementById('card');
             card.classList.remove('shake');
         }
@@ -221,38 +231,27 @@
         function answer(userSaysYes) {
             totalQuestions++;
             const card = document.getElementById('card');
-            const badge = document.getElementById('comboBadge');
 
             if (userSaysYes === currentIsKuerzbar) {
                 // --- RICHTIG ---
                 correctAnswers++;
                 streak++;
                 
-                // Multiplier Logic (Aggressiver bei 20s?)
-                // Wir lassen es bei 3/6, das ist bei 20s schon schwer genug!
                 if (streak >= 6) multiplier = 3;
                 else if (streak >= 3) multiplier = 2;
                 else multiplier = 1;
 
-                // Points calc
-                const points = 10 * multiplier;
-                score += points;
-
-                // Visuals
+                score += 10 * multiplier;
                 showFeedback(true);
-                
             } else {
                 // --- FALSCH ---
                 score -= 5;
                 if(score < 0) score = 0;
-                
-                // Reset Streak
                 streak = 0;
                 multiplier = 1;
                 
-                // Visuals
                 card.classList.add('shake');
-                navigator.vibrate(200); // Handy Vibration
+                navigator.vibrate(200);
                 showFeedback(false);
             }
 
@@ -270,22 +269,17 @@
                     badge.innerText = "MAX HEAT!";
                     badge.classList.add('max');
                 }
-                
                 badge.classList.add('active');
                 setTimeout(() => badge.classList.remove('active'), 800);
             }
         }
 
         function updateHUD() {
-            // Score animieren
             document.getElementById('scoreDisplay').innerText = score;
-            
-            // Streak Bar füllen (Max 6 Steps für Visualisierung)
             const percentage = Math.min(streak, 6) / 6 * 100;
             const bar = document.getElementById('streakBar');
             bar.style.width = percentage + "%";
             
-            // Farbe je nach Heat ändern
             if(multiplier === 3) bar.style.background = "linear-gradient(90deg, #e67e22, #e74c3c)";
             else if(multiplier === 2) bar.style.background = "linear-gradient(90deg, #f1c40f, #e67e22)";
             else bar.style.background = "linear-gradient(90deg, #3498db, #2ecc71)";
@@ -296,10 +290,9 @@
             document.getElementById('gameArea').classList.add('hidden');
             document.getElementById('endScreen').classList.remove('hidden');
             
-            // Score Animation
             const finalDisplay = document.getElementById('finalScore');
             let current = 0;
-            const step = Math.ceil(score / 20); // Schneller hochzählen
+            const step = Math.ceil(score / 20);
             const anim = setInterval(() => {
                 current += step;
                 if(current >= score) {
@@ -309,26 +302,21 @@
                 finalDisplay.innerText = current;
             }, 20);
 
-            // Daten vorbereiten
             document.getElementById('scoreInput').value = score + " Pts";
-            // Log Details: z.B. "8/10 Correct | Streak: 4"
             document.getElementById('detailsInput').value = `${correctAnswers}/${totalQuestions} Correct | EndStreak: ${streak}`;
 
-            // --- FETCH SENDEN (Damit der Browser nicht blockiert) ---
             // ACHTUNG: Hier deine funktionierende n8n URL einfügen!
-            const webhookURL = "HIER_DEINE_N8N_WEBHOOK_URL_EINFÜGEN";
+            const webhookURL = "https://mathemeister9xklug.n8n.cloud/webhook-test/8b5a6681-d702-428b-9325-c9b803e69fba";
 
-            // Fallback submit nach 2.5s, falls JS failt
             const fallback = setTimeout(() => {
                 document.getElementById('scoreForm').submit();
             }, 2500);
 
-            // Versuch Daten via JS zu senden (smoother)
             const formData = new FormData(document.getElementById('scoreForm'));
             fetch(webhookURL, { method: 'POST', body: formData })
                 .then(() => {
-                    clearTimeout(fallback); // Fallback abbrechen
-                    window.location.href = `danke.html?score=${score}`; // Manuell weiterleiten
+                    clearTimeout(fallback);
+                    window.location.href = `danke.html?score=${score}`;
                 })
                 .catch(err => console.log("Fetch Error, Fallback greift...", err));
         }
