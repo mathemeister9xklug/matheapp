@@ -9,7 +9,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speed Kürzen | Arena</title>
+    <title>Speed Kürzen | 20s Blitz</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#121212">
@@ -98,7 +98,7 @@
     <div class="hud">
         <div class="timer-box">
             <span class="timer-label">Zeit</span>
-            <span id="timeDisplay" class="timer-val">60</span><span style="font-size:1em; color:#555">s</span>
+            <span id="timeDisplay" class="timer-val">20</span><span style="font-size:1em; color:#555">s</span>
         </div>
         <div class="score-box">
             <span class="timer-label">Score</span>
@@ -128,8 +128,8 @@
 
     <div id="startScreen">
         <h1 style="font-size:3em; margin:0; color:var(--accent); text-transform:uppercase; letter-spacing:2px; line-height:1;">Speed<br><span style="color:#fff">Kürzen</span></h1>
-        <p style="color:#888; margin-top:10px;">Highspeed • Combo • Adrenalin</p>
-        <button class="big-btn" onclick="startGame()">GO 🚀</button>
+        <p style="color:#888; margin-top:10px;">20 Sekunden. Purer Fokus.</p>
+        <button class="big-btn" onclick="startGame()">BLITZSTART 🚀</button>
     </div>
 
     <div id="endScreen" class="hidden">
@@ -143,7 +143,7 @@
             <input type="hidden" name="01_name" id="nameInput">
             <input type="hidden" name="Schule" id="schoolInput">
             <input type="hidden" name="00_SCORE" id="scoreInput"> 
-            <input type="hidden" name="Thema" value="Training_SpeedKuerzen">
+            <input type="hidden" name="Thema" value="Training_SpeedKuerzen_20s">
             <input type="hidden" name="00_DAUER" value="20s">
             <input type="hidden" name="Details" id="detailsInput" value="">
         </form>
@@ -152,7 +152,7 @@
     <script>
         // --- GAME CONFIG & STATE ---
         let score = 0;
-        let timeLeft = 20;
+        let timeLeft = 20; // 20 Sekunden Limit
         let timerInterval;
         let currentIsKuerzbar = false;
         
@@ -175,7 +175,7 @@
             score = 0;
             streak = 0;
             multiplier = 1;
-            timeLeft = 20;
+            timeLeft = 20; // Reset Timer auf 20s
             updateHUD();
             
             nextQuestion();
@@ -185,7 +185,7 @@
                 const tDisp = document.getElementById('timeDisplay');
                 tDisp.innerText = timeLeft;
                 
-                if(timeLeft <= 10) tDisp.classList.add('critical');
+                if(timeLeft <= 5) tDisp.classList.add('critical'); // Panik ab 5s
                 
                 if(timeLeft <= 0) endGame();
             }, 1000);
@@ -208,7 +208,6 @@
                 const primes = [2,3,5,7,11,13,17,19,23];
                 top = primes[Math.floor(Math.random() * primes.length)];
                 bot = top + primes[Math.floor(Math.random() * primes.length)];
-                // Quick fix: Check ob doch teilbar (selten), egal für MVP Speed
             }
 
             document.getElementById('numTop').innerText = top;
@@ -229,7 +228,8 @@
                 correctAnswers++;
                 streak++;
                 
-                // Multiplier Logic 
+                // Multiplier Logic (Aggressiver bei 20s?)
+                // Wir lassen es bei 3/6, das ist bei 20s schon schwer genug!
                 if (streak >= 6) multiplier = 3;
                 else if (streak >= 3) multiplier = 2;
                 else multiplier = 1;
@@ -246,7 +246,7 @@
                 score -= 5;
                 if(score < 0) score = 0;
                 
-                // Reset Streak 
+                // Reset Streak
                 streak = 0;
                 multiplier = 1;
                 
@@ -299,7 +299,7 @@
             // Score Animation
             const finalDisplay = document.getElementById('finalScore');
             let current = 0;
-            const step = Math.ceil(score / 50);
+            const step = Math.ceil(score / 20); // Schneller hochzählen
             const anim = setInterval(() => {
                 current += step;
                 if(current >= score) {
@@ -311,14 +311,26 @@
 
             // Daten vorbereiten
             document.getElementById('scoreInput').value = score + " Pts";
-            // Log Details: z.B. "24/30 Correct | Max Streak: 5"
+            // Log Details: z.B. "8/10 Correct | Streak: 4"
             document.getElementById('detailsInput').value = `${correctAnswers}/${totalQuestions} Correct | EndStreak: ${streak}`;
 
-            // Auto-Submit nach kurzem Delay für Effekt
-            setTimeout(() => {
-                document.getElementById('feedbackText').innerText = "Daten gesendet! Kehre zur Basis zurück...";
+            // --- FETCH SENDEN (Damit der Browser nicht blockiert) ---
+            // ACHTUNG: Hier deine funktionierende n8n URL einfügen!
+            const webhookURL = "HIER_DEINE_N8N_WEBHOOK_URL_EINFÜGEN";
+
+            // Fallback submit nach 2.5s, falls JS failt
+            const fallback = setTimeout(() => {
                 document.getElementById('scoreForm').submit();
             }, 2500);
+
+            // Versuch Daten via JS zu senden (smoother)
+            const formData = new FormData(document.getElementById('scoreForm'));
+            fetch(webhookURL, { method: 'POST', body: formData })
+                .then(() => {
+                    clearTimeout(fallback); // Fallback abbrechen
+                    window.location.href = `danke.html?score=${score}`; // Manuell weiterleiten
+                })
+                .catch(err => console.log("Fetch Error, Fallback greift...", err));
         }
     </script>
 
