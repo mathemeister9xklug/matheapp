@@ -20,6 +20,7 @@
             --success: #27ae60;
             --warn: #e67e22;
             --gold: #f1c40f;
+            --neon-purple: #bc13fe;
         }
 
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; padding-bottom: 80px; }
@@ -67,16 +68,8 @@
 
         /* Verbindungs-Linien Punkte */
         .card::before {
-            content: '';
-            position: absolute;
-            left: -26px; /* Position auf der gestrichelten Linie */
-            top: 50%;
-            transform: translateY(-50%);
-            width: 10px;
-            height: 10px;
-            background: #444;
-            border-radius: 50%;
-            border: 2px solid var(--bg);
+            content: ''; position: absolute; left: -26px; top: 50%; transform: translateY(-50%);
+            width: 10px; height: 10px; background: #444; border-radius: 50%; border: 2px solid var(--bg);
         }
 
         /* STATUS STYLES */
@@ -101,9 +94,70 @@
         /* FOOTER */
         .footer { text-align: center; margin-top: 50px; font-size: 0.8em; color: #555; }
         .reset-link { color: #555; text-decoration: underline; cursor: pointer; }
+
+        /* --- GATEKEEPER OVERLAY --- */
+        #gatekeeper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 15, 0.98); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px);
+            transition: opacity 0.5s;
+        }
+        #gatekeeper.hidden { opacity: 0; pointer-events: none; }
+
+        .gk-content { width: 90%; max-width: 400px; text-align: center; }
+        .gk-title { font-size: 2em; margin-bottom: 20px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .nick-box {
+            background: #222; padding: 20px; border-radius: 15px; border: 1px solid #444;
+            margin-bottom: 20px;
+        }
+        .generated-nick { font-size: 1.8em; font-weight: bold; color: var(--neon-purple); display: block; margin-bottom: 10px; letter-spacing: 1px; }
+        
+        .btn-refresh {
+            background: transparent; border: 1px solid #666; color: #aaa; padding: 5px 15px;
+            border-radius: 20px; cursor: pointer; font-size: 0.9em;
+        }
+        .btn-refresh:hover { color: white; border-color: white; }
+
+        .school-select {
+            width: 100%; padding: 15px; margin-bottom: 30px; background: #333; border: 1px solid #555;
+            color: white; border-radius: 10px; font-size: 1em; box-sizing: border-box;
+        }
+
+        .btn-start {
+            width: 100%; padding: 20px; background: var(--success); color: white; border: none;
+            border-radius: 50px; font-size: 1.2em; font-weight: bold; cursor: pointer;
+            box-shadow: 0 0 20px rgba(39, 174, 96, 0.5); text-transform: uppercase;
+        }
+        .btn-start:hover { transform: scale(1.05); background: #2ecc71; }
+
     </style>
 </head>
 <body>
+
+<div id="gatekeeper">
+    <div class="gk-content">
+        <h1 class="gk-title">Identifikation</h1>
+        <p style="color:#888; margin-bottom:30px;">Willkommen in der Liga. Erstelle dein Profil.</p>
+
+        <div class="nick-box">
+            <span class="generated-nick" id="nickDisplay">...</span>
+            <button class="btn-refresh" onclick="generateNick()">🎲 Neu Würfeln</button>
+        </div>
+
+        <div style="text-align: left; margin-bottom: 5px; color: #aaa; font-size: 0.9em; margin-left: 5px;">Deine Basis (Schule):</div>
+        <input list="schools" id="schoolInput" class="school-select" placeholder="Schule suchen oder eingeben...">
+        <datalist id="schools">
+            <option value="Goethe-Gymnasium">
+            <option value="Leibniz-Realschule">
+            <option value="Stadtteilschule Mitte">
+            <option value="Gymnasium Nord">
+        </datalist>
+
+        <button class="btn-start" onclick="saveAndEnter()">Mission Starten 🚀</button>
+    </div>
+</div>
 
 <div class="container">
     <header>
@@ -172,7 +226,6 @@
         </div>
     </div>
 
-
     <div class="footer">
         Mathe-Liga App v1.3<br>
         <span class="reset-link" onclick="logout()">Nicht du? Ausloggen</span>
@@ -181,18 +234,102 @@
 </div>
 
 <script>
-    // USER LOGIK
-    const user = localStorage.getItem('matheLigaUser');
+    // --- NICKNAME POOLS ---
+    const prefixes = [
+        "Nano", "Giga", "Tera", "Piko", "Exa", "Cyber", "Neo", "Retro", "Meta", 
+        "Techno", "Astro", "Cosmo", "Solar", "Lunar", "Sonic", "Data", "Byte", 
+        "Pixel", "Hyper", "Mega", "Ultra", "Super", "Prime", "Alpha", "Beta", 
+        "Gamma", "Omega", "Nova", "Apex", "Neon", "Chrom", "Titan", "Cobalt", 
+        "Toxic", "Plasma", "Iron", "Steel", "Frozen"
+    ];
     
-    if (user) {
+    const nouns = [
+        "Panda", "Wolf", "Fuchs", "Tiger", "Löwe", "Falke", "Adler", "Hai", 
+        "Wal", "Otter", "Lama", "Koala", "Eule", "Rabe", "Cobra", "Viper", 
+        "Rex", "Raptor", "Bär", "Gecko", "Bot", "Drohne", "Pilot", "Scout", 
+        "Unit", "Chip", "Core", "Node", "Grid", "Matrix", "Loop", "Prisma", 
+        "Kugel", "Toast", "Pizza", "Keks", "Taco", "Burger", "Donut", "Muffin", 
+        "Blitz", "Sturm", "Rakete", "Komet", "Stern", "Planet"
+    ];
+
+    let currentNick = "";
+
+    // --- GATEKEEPER LOGIC ---
+    document.addEventListener("DOMContentLoaded", () => {
+        const storedUser = localStorage.getItem('matheLigaUser');
+        const storedSchool = localStorage.getItem('matheLigaSchool');
+
+        // 1. Check: User vorhanden?
+        if (storedUser && storedSchool) {
+            // Zugang gewähren
+            unlockDashboard(storedUser);
+        } else {
+            // Gatekeeper aktivieren
+            initGatekeeper();
+        }
+
+        // Links personalisieren (auch wenn Gatekeeper noch aktiv ist, für später)
+        updateLinks();
+    });
+
+    function initGatekeeper() {
+        const gk = document.getElementById('gatekeeper');
+        gk.classList.remove('hidden'); // Sicherstellen, dass sichtbar
+        
+        generateNick(); // Ersten Namen würfeln
+
+        // Magic Link Check (?school=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const magicSchool = urlParams.get('school');
+        
+        if (magicSchool) {
+            const schoolInput = document.getElementById('schoolInput');
+            schoolInput.value = magicSchool;
+            // Optional: Visuelles Feedback, dass Link funktioniert hat
+            schoolInput.style.borderColor = "#27ae60"; 
+            schoolInput.style.backgroundColor = "rgba(39, 174, 96, 0.1)";
+        }
+    }
+
+    function generateNick() {
+        const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const n = nouns[Math.floor(Math.random() * nouns.length)];
+        const num = Math.floor(Math.random() * 90) + 10; // 10-99
+        currentNick = `${p}_${n}_${num}`;
+        document.getElementById('nickDisplay').innerText = currentNick;
+    }
+
+    function saveAndEnter() {
+        const schoolVal = document.getElementById('schoolInput').value.trim();
+        
+        if (!schoolVal) {
+            alert("Bitte wähle deine Schule (oder gib sie ein).");
+            return;
+        }
+
+        // Speichern
+        localStorage.setItem('matheLigaUser', currentNick);
+        localStorage.setItem('matheLigaSchool', schoolVal);
+
+        // UI Update
+        document.getElementById('gatekeeper').classList.add('hidden');
+        unlockDashboard(currentNick);
+        updateLinks();
+    }
+
+    function unlockDashboard(user) {
         document.getElementById('userNameDisplay').innerText = user;
         document.getElementById('userCard').style.display = 'flex';
-        
-        // Links personalisieren
+    }
+
+    function updateLinks() {
+        const user = localStorage.getItem('matheLigaUser');
+        if (!user) return;
+
+        // An alle Links die ID hängen (für simples Tracking im Query String)
         const links = document.querySelectorAll('a[href]');
         links.forEach(link => {
-            if(link.href.includes('.html')) {
-                // Wenn schon Parameter da sind (?), hängen wir mit & an, sonst mit ?
+            if(link.href.includes('.html') && !link.href.includes('id=')) {
                 const separator = link.href.includes('?') ? '&' : '?';
                 link.href = link.getAttribute('href') + separator + "id=" + encodeURIComponent(user);
             }
@@ -200,8 +337,9 @@
     }
 
     function logout() {
-        if(confirm("Ausloggen?")) {
+        if(confirm("Bist du sicher? Dein Fortschritt auf diesem Gerät wird getrennt.")) {
             localStorage.removeItem('matheLigaUser');
+            localStorage.removeItem('matheLigaSchool');
             location.reload();
         }
     }
