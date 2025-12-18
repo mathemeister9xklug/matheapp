@@ -144,7 +144,7 @@
             <input type="hidden" name="Schule" id="schoolInput">
             <input type="hidden" name="00_SCORE" id="scoreInput"> 
             <input type="hidden" name="Thema" value="Training_SpeedKuerzen">
-            <input type="hidden" name="00_DAUER" value="60s">
+            <input type="hidden" name="00_DAUER" value="20s">
             <input type="hidden" name="Details" id="detailsInput" value="">
         </form>
     </div>
@@ -152,7 +152,7 @@
     <script>
         // --- GAME CONFIG & STATE ---
         let score = 0;
-        let timeLeft = 60;
+        let timeLeft = 20;
         let timerInterval;
         let currentIsKuerzbar = false;
         
@@ -175,7 +175,7 @@
             score = 0;
             streak = 0;
             multiplier = 1;
-            timeLeft = 60;
+            timeLeft = 20;
             updateHUD();
             
             nextQuestion();
