@@ -320,6 +320,7 @@
     function unlockDashboard(user) {
         document.getElementById('userNameDisplay').innerText = user;
         document.getElementById('userCard').style.display = 'flex';
+        document.getElementById('gatekeeper').classList.add('hidden');
     }
 
     function updateLinks() {
