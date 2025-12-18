@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <script>
+        // SECURITY REDIRECT (Sofort ausführen)
+        if(!localStorage.getItem('matheLigaUser')) {
+            window.location.href = 'index.html';
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speed Kürzen</title>
+    <title>Speed Kürzen | Arena</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#121212">
@@ -11,176 +17,308 @@
 
     <style>
         /* --- GAMING THEME --- */
-        :root { --bg: #121212; --card: rgba(30,30,30,0.95); --accent: #e67e22; --text: #fff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; text-align: center; overflow: hidden; user-select: none; }
+        :root { --bg: #121212; --card: rgba(30,30,30,0.95); --accent: #e67e22; --text: #fff; --neon-blue: #00f3ff; --neon-red: #ff0055; --neon-gold: #ffd700; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; text-align: center; overflow: hidden; user-select: none; touch-action: manipulation; }
         
-        /* HINTERGRUND (Wie Diagnose) */
+        /* BACKGROUND */
         .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-        .shape { position: absolute; opacity: 0.15; filter: blur(10px); background: var(--accent); animation: float 20s infinite linear; border-radius: 50%; }
-        .s1 { width: 200px; height: 200px; top: 10%; left: -50px; }
-        .s2 { width: 300px; height: 300px; bottom: -50px; right: -50px; animation-duration: 30s; }
-        @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(50px); } 100% { transform: translateY(0); } }
+        .shape { position: absolute; opacity: 0.1; filter: blur(20px); background: var(--accent); animation: pulse 10s infinite alternate; border-radius: 50%; }
+        .s1 { width: 300px; height: 300px; top: -50px; left: -50px; background: var(--neon-blue); }
+        .s2 { width: 400px; height: 400px; bottom: -100px; right: -100px; background: var(--accent); }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.1; } 100% { transform: scale(1.2); opacity: 0.2; } }
 
-        /* HUD (Heads Up Display) */
-        .hud { display: flex; justify-content: space-between; font-size: 1.2em; font-weight: bold; margin-bottom: 40px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 10px; }
-        .timer { color: #e74c3c; }
-        .score { color: #f1c40f; }
+        /* HUD */
+        .hud { display: flex; justify-content: space-between; align-items: flex-end; font-weight: bold; margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.6); border-radius: 15px; border: 1px solid #333; backdrop-filter: blur(5px); }
+        .timer-box { text-align: left; }
+        .timer-label { font-size: 0.7em; color: #888; display: block; text-transform: uppercase; }
+        .timer-val { font-size: 1.8em; color: var(--text); font-variant-numeric: tabular-nums; }
+        .timer-val.critical { color: var(--neon-red); animation: blink 0.5s infinite; }
+
+        .score-box { text-align: right; }
+        .score-val { font-size: 2em; color: var(--neon-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); transition: transform 0.2s; }
+
+        /* MULTIPLIER BAR */
+        .streak-container { height: 6px; background: #333; border-radius: 3px; margin: 0 auto 30px auto; max-width: 400px; overflow: hidden; position: relative; }
+        .streak-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-gold)); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .combo-badge { 
+            position: absolute; top: 80px; left: 50%; transform: translateX(-50%) scale(0); 
+            background: linear-gradient(135deg, #ff00cc, #333399); padding: 5px 20px; 
+            border-radius: 20px; font-weight: 900; font-style: italic; letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(255, 0, 204, 0.5); z-index: 5; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none; opacity: 0;
+        }
+        .combo-badge.active { transform: translateX(-50%) scale(1); opacity: 1; }
+        .combo-badge.max { background: linear-gradient(135deg, #ff9900, #ff0000); box-shadow: 0 0 30px rgba(255, 69, 0, 0.6); }
 
         /* SPIELFELD */
-        .game-area { margin-top: 50px; transition: opacity 0.3s; }
-        .fraction-box { font-size: 4em; font-weight: bold; margin-bottom: 50px; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .frac { display: inline-block; vertical-align: middle; text-align: center; }
-        .top { display: block; border-bottom: 4px solid white; padding: 5px; }
-        .bottom { display: block; padding: 5px; }
+        .game-area { margin-top: 20px; transition: opacity 0.3s; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .fraction-card { 
+            background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid #444;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 30px; position: relative;
+        }
+        
+        .frac { font-size: 5em; font-weight: bold; display: inline-flex; flex-direction: column; align-items: center; line-height: 1; }
+        .top { border-bottom: 4px solid white; padding: 5px 15px; display: block; }
+        .bottom { padding: 5px 15px; display: block; }
+
+        .question { color: #aaa; margin-bottom: 20px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; }
 
         /* BUTTONS */
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 400px; margin: 0 auto; }
-        .btn { padding: 30px 10px; border-radius: 15px; border: none; font-size: 1.2em; font-weight: bold; color: white; cursor: pointer; transition: transform 0.1s; box-shadow: 0 5px 0 rgba(0,0,0,0.5); }
-        .btn:active { transform: translateY(5px); box-shadow: none; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn { 
+            padding: 25px 10px; border-radius: 15px; border: none; font-size: 1.2em; font-weight: bold; color: white; 
+            cursor: pointer; transition: all 0.1s; position: relative; overflow: hidden;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.4); text-transform: uppercase;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
         
-        .btn-yes { background: #27ae60; } /* Kürzbar */
-        .btn-no { background: #c0392b; }  /* Fertig */
+        .btn-yes { background: #27ae60; } 
+        .btn-no { background: #c0392b; }
 
-        /* START SCREEN */
-        #startScreen, #endScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .big-btn { padding: 20px 50px; font-size: 1.5em; background: var(--accent); border: none; color: white; border-radius: 50px; cursor: pointer; margin-top: 30px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        /* ANIMATIONEN */
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+        @keyframes blink { 50% { opacity: 0.5; } }
 
+        /* SCREENS */
+        #startScreen, #endScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18,18,18,0.98); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .big-btn { padding: 20px 60px; font-size: 1.5em; background: linear-gradient(45deg, var(--accent), #d35400); border: none; color: white; border-radius: 50px; cursor: pointer; margin-top: 30px; font-weight: bold; box-shadow: 0 0 20px rgba(230, 126, 34, 0.4); animation: pulseBtn 2s infinite; }
+        @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .hidden { display: none !important; }
+
     </style>
 </head>
 <body>
 
     <div class="bg-animation"><div class="shape s1"></div><div class="shape s2"></div></div>
 
+    <div id="comboBadge" class="combo-badge">2x STREAK!</div>
+
     <div class="hud">
-        <div class="timer">⏳ <span id="timeDisplay">60</span>s</div>
-        <div class="score">🏆 <span id="scoreDisplay">0</span></div>
+        <div class="timer-box">
+            <span class="timer-label">Zeit</span>
+            <span id="timeDisplay" class="timer-val">60</span><span style="font-size:1em; color:#555">s</span>
+        </div>
+        <div class="score-box">
+            <span class="timer-label">Score</span>
+            <span id="scoreDisplay" class="score-val">0</span>
+        </div>
+    </div>
+
+    <div class="streak-container">
+        <div id="streakBar" class="streak-fill"></div>
     </div>
 
     <div class="game-area" id="gameArea">
-        <div class="fraction-box">
+        <div class="fraction-card" id="card">
             <div class="frac">
                 <span class="top" id="numTop">?</span>
                 <span class="bottom" id="numBot">?</span>
             </div>
         </div>
         
-        <p style="color:#aaa; margin-bottom:20px;">Kann man diesen Bruch kürzen?</p>
+        <p class="question">Kann man kürzen?</p>
 
         <div class="btn-grid">
-            <button class="btn btn-yes" onclick="answer(true)">JA (Kürzbar)</button>
-            <button class="btn btn-no" onclick="answer(false)">NEIN (Fertig)</button>
+            <button class="btn btn-yes" onclick="answer(true)">JA</button>
+            <button class="btn btn-no" onclick="answer(false)">NEIN</button>
         </div>
     </div>
 
     <div id="startScreen">
-        <h1 style="font-size:3em; margin:0; color:#e67e22;">SPEED KÜRZEN</h1>
-        <p>60 Sekunden. Entscheide schnell.</p>
-        <button class="big-btn" onclick="startGame()">START 🚀</button>
+        <h1 style="font-size:3em; margin:0; color:var(--accent); text-transform:uppercase; letter-spacing:2px; line-height:1;">Speed<br><span style="color:#fff">Kürzen</span></h1>
+        <p style="color:#888; margin-top:10px;">Highspeed • Combo • Adrenalin</p>
+        <button class="big-btn" onclick="startGame()">GO 🚀</button>
     </div>
 
     <div id="endScreen" class="hidden">
-        <h1>ZEIT UM!</h1>
-        <p style="font-size:2em;">Score: <span id="finalScore" style="color:#f1c40f">0</span></p>
-        <p id="feedbackText" style="color:#aaa;">Speichere Daten...</p>
+        <h1 style="font-size:2em; margin-bottom:10px;">ZEIT ABGELAUFEN!</h1>
+        <p style="color:#888;">Dein Finaler Score</p>
+        <div style="font-size:4em; font-weight:bold; color:var(--neon-gold); margin:20px 0;" id="finalScore">0</div>
+        
+        <p id="feedbackText" style="color:#aaa; font-size:0.9em;">Synchronisiere Datenbank...</p>
         
         <form id="scoreForm" action="https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba" method="POST">
             <input type="hidden" name="01_name" id="nameInput">
             <input type="hidden" name="Schule" id="schoolInput">
-            <input type="hidden" name="00_SCORE" id="scoreInput"> <input type="hidden" name="Thema" value="Training_SpeedKuerzen">
+            <input type="hidden" name="00_SCORE" id="scoreInput"> 
+            <input type="hidden" name="Thema" value="Training_SpeedKuerzen">
             <input type="hidden" name="00_DAUER" value="60s">
+            <input type="hidden" name="Details" id="detailsInput" value="">
         </form>
     </div>
 
     <script>
-        // DATEN (Einfache Zufallslogik)
+        // --- GAME CONFIG & STATE ---
         let score = 0;
         let timeLeft = 60;
         let timerInterval;
         let currentIsKuerzbar = false;
+        
+        // HOT STREAK LOGIC
+        let streak = 0;
+        let multiplier = 1;
+        
+        // Stats for Logging
+        let totalQuestions = 0;
+        let correctAnswers = 0;
 
-        // User Daten laden
-        const user = localStorage.getItem('matheLigaUser') || "Gast";
-        const school = localStorage.getItem('matheLigaSchool') || "Unbekannt";
+        // --- INIT ---
+        const user = localStorage.getItem('matheLigaUser') || "Unknown";
+        const school = localStorage.getItem('matheLigaSchool') || "Unknown";
         document.getElementById('nameInput').value = user;
         document.getElementById('schoolInput').value = school;
 
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
             score = 0;
+            streak = 0;
+            multiplier = 1;
             timeLeft = 60;
-            updateScore();
+            updateHUD();
+            
             nextQuestion();
             
             timerInterval = setInterval(() => {
                 timeLeft--;
-                document.getElementById('timeDisplay').innerText = timeLeft;
+                const tDisp = document.getElementById('timeDisplay');
+                tDisp.innerText = timeLeft;
+                
+                if(timeLeft <= 10) tDisp.classList.add('critical');
+                
                 if(timeLeft <= 0) endGame();
             }, 1000);
         }
 
         function nextQuestion() {
-            // Zufallsgenerator für Brüche
-            // 50% Chance, dass er kürzbar ist
+            // Logik: 50/50 Chance
             currentIsKuerzbar = Math.random() < 0.5;
-            
             let top, bot;
 
             if (currentIsKuerzbar) {
-                // Generiere kürzbaren Bruch (z.B. 2/4, 5/10, 3/9)
-                const factor = Math.floor(Math.random() * 4) + 2; // Faktor 2 bis 5
-                const baseTop = Math.floor(Math.random() * 5) + 1;
-                const baseBot = baseTop + Math.floor(Math.random() * 5) + 1;
-                
+                // Generiere Kürzbar
+                const factor = Math.floor(Math.random() * 8) + 2; // Faktor 2-9
+                const baseTop = Math.floor(Math.random() * 9) + 1;
+                const baseBot = baseTop + Math.floor(Math.random() * 9) + 1; // Immer echter Bruch oder 1
                 top = baseTop * factor;
                 bot = baseBot * factor;
             } else {
-                // Generiere nicht kürzbaren Bruch (Primzahlen nutzen hilft)
-                const primes = [2,3,5,7,11,13,17];
+                // Generiere Nicht-Kürzbar (Primzahlen nutzen)
+                const primes = [2,3,5,7,11,13,17,19,23];
                 top = primes[Math.floor(Math.random() * primes.length)];
-                bot = top + primes[Math.floor(Math.random() * primes.length)]; 
-                // Kleiner Check, falls Zufall doch kürzbar wäre (z.B. 3/6), egal für MVP
+                bot = top + primes[Math.floor(Math.random() * primes.length)];
+                // Quick fix: Check ob doch teilbar (selten), egal für MVP Speed
             }
 
             document.getElementById('numTop').innerText = top;
             document.getElementById('numBot').innerText = bot;
+            
+            // Animation Reset
+            const card = document.getElementById('card');
+            card.classList.remove('shake');
         }
 
         function answer(userSaysYes) {
-            // Richtig?
+            totalQuestions++;
+            const card = document.getElementById('card');
+            const badge = document.getElementById('comboBadge');
+
             if (userSaysYes === currentIsKuerzbar) {
-                // Richtig!
-                score += 10;
-                // Visuelles Feedback (Grüner Blitz) - optional
+                // --- RICHTIG ---
+                correctAnswers++;
+                streak++;
+                
+                // Multiplier Logic 
+                if (streak >= 6) multiplier = 3;
+                else if (streak >= 3) multiplier = 2;
+                else multiplier = 1;
+
+                // Points calc
+                const points = 10 * multiplier;
+                score += points;
+
+                // Visuals
+                showFeedback(true);
+                
             } else {
-                // Falsch!
+                // --- FALSCH ---
                 score -= 5;
                 if(score < 0) score = 0;
-                // Visuelles Feedback (Roter Blitz) - optional
+                
+                // Reset Streak 
+                streak = 0;
+                multiplier = 1;
+                
+                // Visuals
+                card.classList.add('shake');
+                navigator.vibrate(200); // Handy Vibration
+                showFeedback(false);
             }
-            updateScore();
+
+            updateHUD();
             nextQuestion();
         }
 
-        function updateScore() {
+        function showFeedback(isCorrect) {
+            const badge = document.getElementById('comboBadge');
+            
+            if (isCorrect && multiplier > 1) {
+                badge.innerText = multiplier + "x COMBO!";
+                badge.classList.remove('max');
+                if(multiplier === 3) {
+                    badge.innerText = "MAX HEAT!";
+                    badge.classList.add('max');
+                }
+                
+                badge.classList.add('active');
+                setTimeout(() => badge.classList.remove('active'), 800);
+            }
+        }
+
+        function updateHUD() {
+            // Score animieren
             document.getElementById('scoreDisplay').innerText = score;
+            
+            // Streak Bar füllen (Max 6 Steps für Visualisierung)
+            const percentage = Math.min(streak, 6) / 6 * 100;
+            const bar = document.getElementById('streakBar');
+            bar.style.width = percentage + "%";
+            
+            // Farbe je nach Heat ändern
+            if(multiplier === 3) bar.style.background = "linear-gradient(90deg, #e67e22, #e74c3c)";
+            else if(multiplier === 2) bar.style.background = "linear-gradient(90deg, #f1c40f, #e67e22)";
+            else bar.style.background = "linear-gradient(90deg, #3498db, #2ecc71)";
         }
 
         function endGame() {
             clearInterval(timerInterval);
             document.getElementById('gameArea').classList.add('hidden');
             document.getElementById('endScreen').classList.remove('hidden');
-            document.getElementById('finalScore').innerText = score;
             
-            // Daten für n8n vorbereiten
-            // Wir senden "120 Pts" als Score
+            // Score Animation
+            const finalDisplay = document.getElementById('finalScore');
+            let current = 0;
+            const step = Math.ceil(score / 50);
+            const anim = setInterval(() => {
+                current += step;
+                if(current >= score) {
+                    current = score;
+                    clearInterval(anim);
+                }
+                finalDisplay.innerText = current;
+            }, 20);
+
+            // Daten vorbereiten
             document.getElementById('scoreInput').value = score + " Pts";
-            
-            // Automatisch absenden nach 2 Sekunden
+            // Log Details: z.B. "24/30 Correct | Max Streak: 5"
+            document.getElementById('detailsInput').value = `${correctAnswers}/${totalQuestions} Correct | EndStreak: ${streak}`;
+
+            // Auto-Submit nach kurzem Delay für Effekt
             setTimeout(() => {
+                document.getElementById('feedbackText').innerText = "Daten gesendet! Kehre zur Basis zurück...";
                 document.getElementById('scoreForm').submit();
-            }, 2000);
+            }, 2500);
         }
     </script>
 
