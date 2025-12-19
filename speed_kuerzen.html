@@ -148,8 +148,8 @@
             <input type="hidden" name="Details" id="detailsInput" value="">
         </form>
     </div>
-
-    <script>
+    
+        <script>
         // --- GAME CONFIG & STATE ---
         let score = 0;
         let timeLeft = 20; 
@@ -162,8 +162,7 @@
         let totalQuestions = 0;
         let correctAnswers = 0;
 
-        // --- HELPER: ggT (Größter Gemeinsamer Teiler) ---
-        // Das ist der mathematische Fix!
+        // --- HELPER: ggT ---
         function gcd(a, b) {
             return b === 0 ? a : gcd(b, a % b);
         }
@@ -181,7 +180,6 @@
             multiplier = 1;
             timeLeft = 20;
             updateHUD();
-            
             nextQuestion();
             
             timerInterval = setInterval(() => {
@@ -194,27 +192,17 @@
         }
 
         function nextQuestion() {
-            // 50% Chance
             currentIsKuerzbar = Math.random() < 0.5;
             let top, bot;
 
             if (currentIsKuerzbar) {
-                // FALL 1: Kürzbar
-                // Wir generieren Basis (ggT=1) und multiplizieren
                 let baseTop = Math.floor(Math.random() * 9) + 1;
                 let baseBot = baseTop + Math.floor(Math.random() * 9) + 1;
-                
-                // Sicherstellen, dass Basis unkürzbar ist (z.B. nicht 2/4 als Basis nehmen)
-                while (gcd(baseTop, baseBot) > 1) {
-                    baseBot++; // Einfach hochzählen bis es passt
-                }
-
-                const factor = Math.floor(Math.random() * 5) + 2; // Faktor 2-6
+                while (gcd(baseTop, baseBot) > 1) { baseBot++; }
+                const factor = Math.floor(Math.random() * 5) + 2; 
                 top = baseTop * factor;
                 bot = baseBot * factor;
             } else {
-                // FALL 2: NICHT Kürzbar
-                // Wir würfeln solange, bis der ggT wirklich 1 ist.
                 do {
                     top = Math.floor(Math.random() * 20) + 2;
                     bot = top + Math.floor(Math.random() * 20) + 1;
@@ -223,9 +211,7 @@
 
             document.getElementById('numTop').innerText = top;
             document.getElementById('numBot').innerText = bot;
-            
-            const card = document.getElementById('card');
-            card.classList.remove('shake');
+            document.getElementById('card').classList.remove('shake');
         }
 
         function answer(userSaysYes) {
@@ -233,35 +219,28 @@
             const card = document.getElementById('card');
 
             if (userSaysYes === currentIsKuerzbar) {
-                // --- RICHTIG ---
                 correctAnswers++;
                 streak++;
-                
                 if (streak >= 6) multiplier = 3;
                 else if (streak >= 3) multiplier = 2;
                 else multiplier = 1;
-
                 score += 10 * multiplier;
                 showFeedback(true);
             } else {
-                // --- FALSCH ---
                 score -= 5;
                 if(score < 0) score = 0;
                 streak = 0;
                 multiplier = 1;
-                
                 card.classList.add('shake');
                 navigator.vibrate(200);
                 showFeedback(false);
             }
-
             updateHUD();
             nextQuestion();
         }
 
         function showFeedback(isCorrect) {
             const badge = document.getElementById('comboBadge');
-            
             if (isCorrect && multiplier > 1) {
                 badge.innerText = multiplier + "x COMBO!";
                 badge.classList.remove('max');
@@ -290,6 +269,7 @@
             document.getElementById('gameArea').classList.add('hidden');
             document.getElementById('endScreen').classList.remove('hidden');
             
+            // Animation Score
             const finalDisplay = document.getElementById('finalScore');
             let current = 0;
             const step = Math.ceil(score / 20);
@@ -302,25 +282,23 @@
                 finalDisplay.innerText = current;
             }, 20);
 
+            // Daten vorbereiten
             document.getElementById('scoreInput').value = score + " Pts";
             document.getElementById('detailsInput').value = `${correctAnswers}/${totalQuestions} Correct | EndStreak: ${streak}`;
+            
+            // WICHTIG: Action URL hardcoden (Produktion!)
+            // Sicherstellen, dass KEIN -test in der URL ist
+            const form = document.getElementById('scoreForm');
+            form.action = "https://mathemeister9xklug.n8n.cloud/webhook/8b5a6681-d702-428b-9325-c9b803e69fba";
 
-            // ACHTUNG: Hier deine funktionierende n8n URL einfügen!
-            const webhookURL = "https://mathemeister.app.n8n.cloud/webhook-test/8b5a6681-d702-428b-9325-c9b803e69fba";
+            document.getElementById('feedbackText').innerText = "Sende Daten an die Liga...";
 
-            const fallback = setTimeout(() => {
-                document.getElementById('scoreForm').submit();
-            }, 2500);
-
-            const formData = new FormData(document.getElementById('scoreForm'));
-            fetch(webhookURL, { method: 'POST', body: formData })
-                .then(() => {
-                    clearTimeout(fallback);
-                    window.location.href = `danke.html?score=${score}`;
-                })
-                .catch(err => console.log("Fetch Error, Fallback greift...", err));
+            // DIE PANZER-METHODE:
+            // Wir warten kurz (für die UX), dann feuern wir das Formular hart ab.
+            setTimeout(() => {
+                form.submit(); // Der Browser übernimmt jetzt. Kein JavaScript Fetch mehr.
+            }, 1500);
         }
     </script>
-
 </body>
 </html>
